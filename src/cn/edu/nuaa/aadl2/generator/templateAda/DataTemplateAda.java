@@ -1,5 +1,7 @@
 package cn.edu.nuaa.aadl2.generator.templateAda;
 
+import cn.edu.nuaa.aadl2.generator.utils.Tools;
+import java.util.List;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.DataImplementation;
@@ -14,6 +16,10 @@ public class DataTemplateAda {
     _builder.append(_template);
     _builder.newLineIfNotEmpty();
     return _builder;
+  }
+  
+  public static void genSystemDataSubcomponent(final String folder, final String systemName, final List<DataSubcomponent> dataSubcomponents) {
+    Tools.createFile(folder, (systemName + "_data.ads"), DataTemplateAda.systemDataSubcomponent(systemName, dataSubcomponents).toString());
   }
   
   public static CharSequence template(final DataSubcomponent subcomponent) {
@@ -46,5 +52,26 @@ public class DataTemplateAda {
       _xblockexpression = _switchResult;
     }
     return _xblockexpression;
+  }
+  
+  public static CharSequence systemDataSubcomponent(final String systemName, final List<DataSubcomponent> dataSubcomponents) {
+    StringConcatenation _builder = new StringConcatenation();
+    _builder.append("packege ");
+    _builder.append(systemName);
+    _builder.append("_data is");
+    _builder.newLineIfNotEmpty();
+    {
+      for(final DataSubcomponent dataSubcomponent : dataSubcomponents) {
+        _builder.append("\t");
+        CharSequence _template = DataTemplateAda.template(dataSubcomponent);
+        _builder.append(_template, "\t");
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    _builder.append("end ");
+    _builder.append(systemName);
+    _builder.append("_data;");
+    _builder.newLineIfNotEmpty();
+    return _builder;
   }
 }

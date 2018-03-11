@@ -69,6 +69,7 @@ import org.osate.workspace.IAadlElement;
 import org.osate.workspace.IAadlProject;
 
 import cn.edu.nuaa.aadl2.generator.utils.PropertyUtils;
+import cn.edu.nuaa.aadl2.generator.utils.Tools;
 import cn.edu.nuaa.aadl2.generator.workflow.GenerateAda;
 
 
@@ -608,7 +609,7 @@ public class GeneratorActionAda implements IObjectActionDelegate {
 //			System.out.println(classifier.eClass().getName());
 //			System.out.println(classifier.getName());
 //		}
-//		
+		
 		GenerateAda.generate(getSystemImplementation2((SystemInstanceImpl)_si));
 		try {
 			getCurrentProject().refreshLocal(IResource.DEPTH_INFINITE, null);
