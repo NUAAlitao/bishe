@@ -6,6 +6,11 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.osate.aadl2.AnnexSubclause;
 import org.osate.aadl2.DefaultAnnexSubclause;
+import org.osate.aadl2.Element;
+import org.osate.ba.aadlba.AssignmentAction;
+import org.osate.ba.aadlba.BehaviorAction;
+import org.osate.ba.aadlba.BehaviorActionBlock;
+import org.osate.ba.aadlba.BehaviorActionSequence;
 import org.osate.ba.aadlba.BehaviorAnnex;
 import org.osate.ba.aadlba.BehaviorBooleanLiteral;
 import org.osate.ba.aadlba.BehaviorCondition;
@@ -18,12 +23,17 @@ import org.osate.ba.aadlba.BehaviorVariableHolder;
 import org.osate.ba.aadlba.DataComponentReference;
 import org.osate.ba.aadlba.DataHolder;
 import org.osate.ba.aadlba.LogicalOperator;
+import org.osate.ba.aadlba.PortDequeueAction;
+import org.osate.ba.aadlba.PortSendAction;
 import org.osate.ba.aadlba.Relation;
 import org.osate.ba.aadlba.RelationalOperator;
 import org.osate.ba.aadlba.SimpleExpression;
+import org.osate.ba.aadlba.Target;
 import org.osate.ba.aadlba.UnaryBooleanOperator;
 import org.osate.ba.aadlba.Value;
 import org.osate.ba.aadlba.ValueExpression;
+import org.osate.ba.aadlba.impl.BehaviorVariableHolderImpl;
+import org.osate.ba.utils.AadlBaVisitors;
 
 @SuppressWarnings("all")
 public class AnnexSubclauseTemplateAda {
@@ -91,29 +101,207 @@ public class AnnexSubclauseTemplateAda {
     _builder.append("case current_state is");
     _builder.newLine();
     {
-      EList<BehaviorTransition> _transitions = behaviorAnnex.getTransitions();
-      for(final BehaviorTransition behaviorTransition : _transitions) {
+      EList<BehaviorState> _states = behaviorAnnex.getStates();
+      for(final BehaviorState behaviorState : _states) {
         _builder.append("\t");
         _builder.append("when ");
-        String _name = behaviorTransition.getSourceState().getName();
+        String _name = behaviorState.getName();
         _builder.append(_name, "\t");
         _builder.append(" =>");
         _builder.newLineIfNotEmpty();
-        _builder.append("\t");
-        _builder.append("\t");
-        _builder.append("if (");
-        String _clearspace = StringUtils.clearspace(AnnexSubclauseTemplateAda.dealBehaviorAnnexTransitionCondition(behaviorTransition).toString());
-        _builder.append(_clearspace, "\t\t");
-        _builder.append(") then");
-        _builder.newLineIfNotEmpty();
-        _builder.append("\t");
-        _builder.append("\t\t");
-        _builder.append("action");
-        _builder.newLine();
+        {
+          List<BehaviorTransition> _transitionWhereSrc = AadlBaVisitors.getTransitionWhereSrc(behaviorState);
+          for(final BehaviorTransition behaviorTransition : _transitionWhereSrc) {
+            _builder.append("\t");
+            _builder.append("\t");
+            _builder.append("if (");
+            String _dealMultipleSpace = StringUtils.dealMultipleSpace(StringUtils.clearspace(AnnexSubclauseTemplateAda.dealBehaviorAnnexTransitionCondition(behaviorTransition).toString()));
+            _builder.append(_dealMultipleSpace, "\t\t");
+            _builder.append(") then");
+            _builder.newLineIfNotEmpty();
+            _builder.append("\t");
+            _builder.append("\t");
+            _builder.append("\t");
+            CharSequence _dealBehaviorAnnexTransitionAction = AnnexSubclauseTemplateAda.dealBehaviorAnnexTransitionAction(behaviorTransition);
+            _builder.append(_dealBehaviorAnnexTransitionAction, "\t\t\t");
+            _builder.newLineIfNotEmpty();
+          }
+        }
       }
     }
     _builder.append("end case;");
     _builder.newLine();
+    return _builder;
+  }
+  
+  public static CharSequence dealBehaviorAnnexTransitionAction(final BehaviorTransition behaviorTransition) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      BehaviorActionBlock _actionBlock = behaviorTransition.getActionBlock();
+      boolean _tripleNotEquals = (_actionBlock != null);
+      if (_tripleNotEquals) {
+        BehaviorActionBlock actionBlock = behaviorTransition.getActionBlock();
+        _builder.newLineIfNotEmpty();
+        {
+          EList<Element> _children = actionBlock.getChildren();
+          for(final Element actionElement : _children) {
+            CharSequence _switchResult = null;
+            boolean _matched = false;
+            if (actionElement instanceof BehaviorActionSequence) {
+              _matched=true;
+              StringConcatenation _builder_1 = new StringConcatenation();
+              CharSequence _dealActionElement = AnnexSubclauseTemplateAda.dealActionElement(((BehaviorActionSequence)actionElement));
+              _builder_1.append(_dealActionElement);
+              _builder_1.newLineIfNotEmpty();
+              _switchResult = _builder_1;
+            }
+            if (!_matched) {
+              if (actionElement instanceof PortSendAction) {
+                _matched=true;
+                StringConcatenation _builder_1 = new StringConcatenation();
+                CharSequence _dealActionElement = AnnexSubclauseTemplateAda.dealActionElement(((PortSendAction)actionElement));
+                _builder_1.append(_dealActionElement);
+                _builder_1.newLineIfNotEmpty();
+                _switchResult = _builder_1;
+              }
+            }
+            if (!_matched) {
+              if (actionElement instanceof PortDequeueAction) {
+                _matched=true;
+                StringConcatenation _builder_1 = new StringConcatenation();
+                CharSequence _dealActionElement = AnnexSubclauseTemplateAda.dealActionElement(((PortDequeueAction)actionElement));
+                _builder_1.append(_dealActionElement);
+                _builder_1.newLineIfNotEmpty();
+                _switchResult = _builder_1;
+              }
+            }
+            if (!_matched) {
+              if (actionElement instanceof AssignmentAction) {
+                _matched=true;
+                StringConcatenation _builder_1 = new StringConcatenation();
+                CharSequence _dealActionElement = AnnexSubclauseTemplateAda.dealActionElement(((AssignmentAction)actionElement));
+                _builder_1.append(_dealActionElement);
+                _builder_1.newLineIfNotEmpty();
+                _switchResult = _builder_1;
+              }
+            }
+            if (!_matched) {
+              _switchResult = null;
+            }
+            _builder.append(_switchResult);
+            _builder.newLineIfNotEmpty();
+          }
+        }
+      }
+    }
+    return _builder;
+  }
+  
+  public static CharSequence dealActionElement(final BehaviorActionSequence behaviorActionSequence) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      EList<BehaviorAction> _actions = behaviorActionSequence.getActions();
+      for(final BehaviorAction action : _actions) {
+        CharSequence _switchResult = null;
+        boolean _matched = false;
+        if (action instanceof BehaviorActionSequence) {
+          _matched=true;
+          StringConcatenation _builder_1 = new StringConcatenation();
+          Object _dealActionElement = AnnexSubclauseTemplateAda.dealActionElement(((BehaviorActionSequence)action));
+          _builder_1.append(_dealActionElement);
+          _builder_1.newLineIfNotEmpty();
+          _switchResult = _builder_1;
+        }
+        if (!_matched) {
+          if (action instanceof PortSendAction) {
+            _matched=true;
+            StringConcatenation _builder_1 = new StringConcatenation();
+            CharSequence _dealActionElement = AnnexSubclauseTemplateAda.dealActionElement(((PortSendAction)action));
+            _builder_1.append(_dealActionElement);
+            _builder_1.newLineIfNotEmpty();
+            _switchResult = _builder_1;
+          }
+        }
+        if (!_matched) {
+          if (action instanceof PortDequeueAction) {
+            _matched=true;
+            StringConcatenation _builder_1 = new StringConcatenation();
+            CharSequence _dealActionElement = AnnexSubclauseTemplateAda.dealActionElement(((PortDequeueAction)action));
+            _builder_1.append(_dealActionElement);
+            _builder_1.newLineIfNotEmpty();
+            _switchResult = _builder_1;
+          }
+        }
+        if (!_matched) {
+          if (action instanceof AssignmentAction) {
+            _matched=true;
+            StringConcatenation _builder_1 = new StringConcatenation();
+            CharSequence _dealActionElement = AnnexSubclauseTemplateAda.dealActionElement(((AssignmentAction)action));
+            _builder_1.append(_dealActionElement);
+            _builder_1.newLineIfNotEmpty();
+            _switchResult = _builder_1;
+          }
+        }
+        if (!_matched) {
+          _switchResult = null;
+        }
+        _builder.append(_switchResult);
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    return _builder;
+  }
+  
+  public static CharSequence dealActionElement(final PortSendAction portSendAction) {
+    StringConcatenation _builder = new StringConcatenation();
+    String _name = portSendAction.getPort().getElement().getName();
+    _builder.append(_name);
+    _builder.append(" = ");
+    String _clearspace = StringUtils.clearspace(AnnexSubclauseTemplateAda.dealValueExpression(portSendAction.getValueExpression()));
+    _builder.append(_clearspace);
+    _builder.append(";");
+    _builder.newLineIfNotEmpty();
+    return _builder;
+  }
+  
+  public static CharSequence dealActionElement(final PortDequeueAction portDequeueAction) {
+    StringConcatenation _builder = new StringConcatenation();
+    String _clearspace = StringUtils.clearspace(AnnexSubclauseTemplateAda.dealActionTarget(portDequeueAction.getTarget()).toString());
+    _builder.append(_clearspace);
+    _builder.append(" = ");
+    String _name = portDequeueAction.getPort().getElement().getName();
+    _builder.append(_name);
+    _builder.append(";");
+    _builder.newLineIfNotEmpty();
+    return _builder;
+  }
+  
+  public static CharSequence dealActionElement(final AssignmentAction assignmentAction) {
+    StringConcatenation _builder = new StringConcatenation();
+    String _clearspace = StringUtils.clearspace(AnnexSubclauseTemplateAda.dealActionTarget(assignmentAction.getTarget()).toString());
+    _builder.append(_clearspace);
+    _builder.append(" = ");
+    String _clearspace_1 = StringUtils.clearspace(AnnexSubclauseTemplateAda.dealValueExpression(assignmentAction.getValueExpression()));
+    _builder.append(_clearspace_1);
+    _builder.append(";");
+    _builder.newLineIfNotEmpty();
+    return _builder;
+  }
+  
+  public static CharSequence dealActionTarget(final Target target) {
+    StringConcatenation _builder = new StringConcatenation();
+    CharSequence _switchResult = null;
+    boolean _matched = false;
+    if (target instanceof BehaviorVariableHolderImpl) {
+      _matched=true;
+      StringConcatenation _builder_1 = new StringConcatenation();
+      String _name = ((BehaviorVariableHolderImpl)target).getElement().getName();
+      _builder_1.append(_name);
+      _builder_1.newLineIfNotEmpty();
+      _switchResult = _builder_1;
+    }
+    _builder.append(_switchResult);
+    _builder.newLineIfNotEmpty();
     return _builder;
   }
   
@@ -124,8 +312,8 @@ public class AnnexSubclauseTemplateAda {
       boolean _tripleNotEquals = (_condition != null);
       if (_tripleNotEquals) {
         BehaviorCondition _condition_1 = behaviorTransition.getCondition();
-        CharSequence _dealConditionValueExpression = AnnexSubclauseTemplateAda.dealConditionValueExpression(((ValueExpression) _condition_1));
-        _builder.append(_dealConditionValueExpression);
+        String _dealValueExpression = AnnexSubclauseTemplateAda.dealValueExpression(((ValueExpression) _condition_1));
+        _builder.append(_dealValueExpression);
         _builder.newLineIfNotEmpty();
       } else {
         _builder.append("True");
@@ -135,7 +323,7 @@ public class AnnexSubclauseTemplateAda {
     return _builder;
   }
   
-  public static CharSequence dealConditionValueExpression(final ValueExpression valueExpression) {
+  public static String dealValueExpression(final ValueExpression valueExpression) {
     StringConcatenation _builder = new StringConcatenation();
     EList<Relation> relations = valueExpression.getRelations();
     _builder.newLineIfNotEmpty();
@@ -157,8 +345,8 @@ public class AnnexSubclauseTemplateAda {
         if (firstValue instanceof DataComponentReference) {
           _matched=true;
           StringConcatenation _builder_1 = new StringConcatenation();
-          CharSequence _dealDataComponentReference = AnnexSubclauseTemplateAda.dealDataComponentReference(((DataComponentReference) firstValue));
-          _builder_1.append(_dealDataComponentReference);
+          String _clearspace = StringUtils.clearspace(AnnexSubclauseTemplateAda.dealDataComponentReference(((DataComponentReference) firstValue)).toString());
+          _builder_1.append(_clearspace);
           _builder_1.newLineIfNotEmpty();
           _switchResult = _builder_1;
         }
@@ -206,8 +394,8 @@ public class AnnexSubclauseTemplateAda {
           if (firstValue instanceof ValueExpression) {
             _matched=true;
             StringConcatenation _builder_1 = new StringConcatenation();
-            Object _dealConditionValueExpression = AnnexSubclauseTemplateAda.dealConditionValueExpression(((ValueExpression) firstValue));
-            _builder_1.append(_dealConditionValueExpression);
+            String _dealValueExpression = AnnexSubclauseTemplateAda.dealValueExpression(((ValueExpression) firstValue));
+            _builder_1.append(_dealValueExpression);
             _builder_1.newLineIfNotEmpty();
             _switchResult = _builder_1;
           }
@@ -229,8 +417,8 @@ public class AnnexSubclauseTemplateAda {
             if (secondValue instanceof DataComponentReference) {
               _matched_1=true;
               StringConcatenation _builder_1 = new StringConcatenation();
-              CharSequence _dealDataComponentReference = AnnexSubclauseTemplateAda.dealDataComponentReference(((DataComponentReference) secondValue));
-              _builder_1.append(_dealDataComponentReference);
+              String _clearspace = StringUtils.clearspace(AnnexSubclauseTemplateAda.dealDataComponentReference(((DataComponentReference) secondValue)).toString());
+              _builder_1.append(_clearspace);
               _builder_1.newLineIfNotEmpty();
               _switchResult_1 = _builder_1;
             }
@@ -278,8 +466,8 @@ public class AnnexSubclauseTemplateAda {
               if (secondValue instanceof ValueExpression) {
                 _matched_1=true;
                 StringConcatenation _builder_1 = new StringConcatenation();
-                Object _dealConditionValueExpression = AnnexSubclauseTemplateAda.dealConditionValueExpression(((ValueExpression) secondValue));
-                _builder_1.append(_dealConditionValueExpression);
+                String _dealValueExpression = AnnexSubclauseTemplateAda.dealValueExpression(((ValueExpression) secondValue));
+                _builder_1.append(_dealValueExpression);
                 _builder_1.newLineIfNotEmpty();
                 _switchResult_1 = _builder_1;
               }
@@ -301,7 +489,7 @@ public class AnnexSubclauseTemplateAda {
         }
       }
     }
-    return _builder;
+    return _builder.toString();
   }
   
   public static CharSequence dealDataComponentReference(final DataComponentReference dataComponentReference) {

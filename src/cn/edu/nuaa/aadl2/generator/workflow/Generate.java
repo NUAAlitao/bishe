@@ -14,7 +14,7 @@ import org.osate.aadl2.SystemImplementation;
 public class Generate {
   private final static String CFolder = "C_codes";
   
-  public static Object generate(final SystemImplementation system) {
+  public static CharSequence generate(final SystemImplementation system) {
     StringConcatenation _builder = new StringConcatenation();
     _builder.newLine();
     {
@@ -82,7 +82,7 @@ public class Generate {
             _builder.newLine();
             _builder.append("\t");
             _builder.append("\t");
-            CharSequence _template = SubcomponentTemplate.template(subcomponent);
+            Object _template = SubcomponentTemplate.template(subcomponent);
             _builder.append(_template, "\t\t");
             _builder.newLineIfNotEmpty();
             _builder.append("\t");

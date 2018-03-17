@@ -16,7 +16,7 @@ import org.osate.aadl2.ThreadSubcomponent;
 
 @SuppressWarnings("all")
 public class SubcomponentTemplate {
-  public static CharSequence template(final Subcomponent subcomponent) {
+  public static Object template(final Subcomponent subcomponent) {
     CharSequence _switchResult = null;
     boolean _matched = false;
     if (subcomponent instanceof ProcessSubcomponent) {

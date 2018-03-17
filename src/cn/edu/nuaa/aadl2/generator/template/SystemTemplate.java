@@ -54,7 +54,7 @@ public class SystemTemplate {
       if (subsystem instanceof SystemImplementation) {
         _matched=true;
         StringConcatenation _builder = new StringConcatenation();
-        Object _generate = Generate.generate(((SystemImplementation)subsystem));
+        CharSequence _generate = Generate.generate(((SystemImplementation)subsystem));
         _builder.append(_generate);
         _builder.newLineIfNotEmpty();
         System.out.println((Template.meta_systemheadfile + "11111111111111111111111111111111111111"));

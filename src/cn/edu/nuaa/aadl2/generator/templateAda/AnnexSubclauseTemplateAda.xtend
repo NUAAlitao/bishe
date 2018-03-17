@@ -16,6 +16,14 @@ import org.osate.ba.aadlba.BehaviorVariableHolder
 
 import static extension cn.edu.nuaa.aadl2.generator.utils.StringUtils.*
 import org.osate.ba.aadlba.impl.BehaviorTransitionImpl
+import org.osate.ba.utils.AadlBaVisitors
+import org.osate.ba.aadlba.BehaviorAction
+import org.osate.ba.aadlba.BehaviorActionSequence
+import org.osate.ba.aadlba.PortSendAction
+import org.osate.ba.aadlba.PortDequeueAction
+import org.osate.ba.aadlba.AssignmentAction
+import org.osate.ba.aadlba.Target
+import org.osate.ba.aadlba.impl.BehaviorVariableHolderImpl
 
 class AnnexSubclauseTemplateAda {
 	
@@ -47,21 +55,82 @@ class AnnexSubclauseTemplateAda {
 	'''
 	def static dealBehaviorAnnexTransition(BehaviorAnnex behaviorAnnex)'''
 		case current_state is
-			«FOR BehaviorTransition behaviorTransition : behaviorAnnex.transitions»
-			when «behaviorTransition.sourceState.name» =>
-				if («dealBehaviorAnnexTransitionCondition(behaviorTransition).toString.clearspace») then
-					action
+			«FOR BehaviorState behaviorState : behaviorAnnex.states»
+				when «behaviorState.name» =>
+					«FOR BehaviorTransition behaviorTransition : AadlBaVisitors.getTransitionWhereSrc(behaviorState)»
+					if («dealBehaviorAnnexTransitionCondition(behaviorTransition).toString.clearspace.dealMultipleSpace») then
+						«dealBehaviorAnnexTransitionAction(behaviorTransition)»
+					«ENDFOR»
 			«ENDFOR»
 		end case;
 	'''
+	
+	def static dealBehaviorAnnexTransitionAction(BehaviorTransition behaviorTransition)'''
+		«IF behaviorTransition.actionBlock !== null»
+		«var actionBlock = behaviorTransition.actionBlock»
+		«FOR actionElement : actionBlock.children»
+			«switch actionElement{
+				BehaviorActionSequence:'''
+					«actionElement.dealActionElement»
+				'''
+				PortSendAction:'''
+					«actionElement.dealActionElement»
+				'''
+				PortDequeueAction:'''
+					«actionElement.dealActionElement»
+				'''
+				AssignmentAction:'''
+					«actionElement.dealActionElement»
+				'''
+				default:null
+			}»
+		«ENDFOR»
+		«ENDIF»
+	'''
+	def static dealActionElement(BehaviorActionSequence behaviorActionSequence)'''
+		«FOR action : behaviorActionSequence.actions»
+			«switch action{
+				BehaviorActionSequence:'''
+					«action.dealActionElement»
+				'''
+				PortSendAction:'''
+					«action.dealActionElement»
+				'''
+				PortDequeueAction:'''
+					«action.dealActionElement»
+				'''
+				AssignmentAction:'''
+					«action.dealActionElement»
+				'''
+				default:null
+			}»
+		«ENDFOR»
+	'''
+	def static dealActionElement(PortSendAction portSendAction)'''
+		«portSendAction.port.element.name» = «portSendAction.valueExpression.dealValueExpression.clearspace»;
+	'''
+	def static dealActionElement(PortDequeueAction portDequeueAction)'''
+		«portDequeueAction.target.dealActionTarget.toString.clearspace» = «portDequeueAction.port.element.name»;
+	'''
+	def static dealActionElement(AssignmentAction assignmentAction)'''
+		«assignmentAction.target.dealActionTarget.toString.clearspace» = «assignmentAction.valueExpression.dealValueExpression.clearspace»;
+	'''
+	def static dealActionTarget(Target target)'''
+		«switch target{
+			BehaviorVariableHolderImpl:'''
+				«target.element.name»
+			'''
+		}»
+	'''
+	
 	def static dealBehaviorAnnexTransitionCondition(BehaviorTransition behaviorTransition)'''
 		«IF behaviorTransition.condition !== null»
-			«dealConditionValueExpression(behaviorTransition.condition as ValueExpression)»
+			«dealValueExpression(behaviorTransition.condition as ValueExpression)»
 		«ELSE»
 			True
 		«ENDIF»
 	'''
-	def static dealConditionValueExpression(ValueExpression valueExpression)'''
+	def static String dealValueExpression(ValueExpression valueExpression)'''
 		«var relations = valueExpression.relations»
 		«var logicalOperators = valueExpression.logicalOperators»
 		«var i = 0»
@@ -70,7 +139,7 @@ class AnnexSubclauseTemplateAda {
 			«relation.firstExpression.terms.get(0).factors.get(0).unaryBooleanOperator»
 			 («switch firstValue {
 				DataComponentReference:'''
-					«dealDataComponentReference(firstValue as DataComponentReference)»
+					«dealDataComponentReference(firstValue as DataComponentReference).toString.clearspace»
 				'''
 				BehaviorIntegerLiteral:'''
 					«dealBehaivorIntegerLiteral(firstValue as BehaviorIntegerLiteral)»
@@ -85,14 +154,14 @@ class AnnexSubclauseTemplateAda {
 					«dealBehaviorVariableHolder(firstValue as BehaviorVariableHolder)»
 				'''
 				ValueExpression:'''
-					«dealConditionValueExpression(firstValue as ValueExpression)»
+					«dealValueExpression(firstValue as ValueExpression)»
 				'''
 			}» «relation.relationalOperator» 
 			«IF relation.secondExpression !== null»
 			«var secondValue = relation.secondExpression.terms.get(0).factors.get(0).firstValue»
 			«switch secondValue {
 				DataComponentReference:'''
-					«dealDataComponentReference(secondValue as DataComponentReference)»
+					«dealDataComponentReference(secondValue as DataComponentReference).toString.clearspace»
 				'''
 				BehaviorIntegerLiteral:'''
 					«dealBehaivorIntegerLiteral(secondValue as BehaviorIntegerLiteral)»
@@ -107,7 +176,7 @@ class AnnexSubclauseTemplateAda {
 					«dealBehaviorVariableHolder(secondValue as BehaviorVariableHolder)»
 				'''
 				ValueExpression:'''
-					«dealConditionValueExpression(secondValue as ValueExpression)»
+					«dealValueExpression(secondValue as ValueExpression)»
 				'''
 			}»«ENDIF») 
 			«IF i < logicalOperators.size»

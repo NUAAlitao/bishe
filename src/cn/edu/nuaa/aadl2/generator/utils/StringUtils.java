@@ -17,4 +17,8 @@ public class StringUtils {
   public static String clearspace(final String str) {
     return str.replaceAll("\r|\n", "");
   }
+  
+  public static String dealMultipleSpace(final String str) {
+    return str.replaceAll("\\s+", " ");
+  }
 }

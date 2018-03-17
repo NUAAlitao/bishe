@@ -17,4 +17,8 @@ class StringUtils {
 	def static clearspace(String str){
 		return str.replaceAll("\r|\n","")
 	}
+	
+	def static dealMultipleSpace(String str){
+		return str.replaceAll("\\s+"," ")
+	}
 }
