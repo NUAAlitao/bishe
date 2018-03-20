@@ -60,8 +60,8 @@ public class AnnexSubclauseTemplateAda {
         String _name = behaviorVariable.getName();
         _builder.append(_name);
         _builder.append(" : ");
-        String _name_1 = behaviorVariable.getDataClassifier().getName();
-        _builder.append(_name_1);
+        String _convertPoint = StringUtils.convertPoint(behaviorVariable.getDataClassifier().getName());
+        _builder.append(_convertPoint);
         _builder.append(";");
         _builder.newLineIfNotEmpty();
       }

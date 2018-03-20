@@ -35,7 +35,12 @@ class GenerateAda {
 			generateSystem(adaFolder,system,null)
 		}
 	}
-	
+	/*
+	 * 处理系统实现组件
+	 * @param parentFolderPath 此系统目录的父目录路径
+	 * @param system 此系统实现实例
+	 * @param systemFolder 此系统目录名
+	 */
 	def static generateSystem(String parentFolderPath, SystemImplementation system, String systemFolder){
 		var String currentFolder
 		if(systemFolder == null){
@@ -53,11 +58,11 @@ class GenerateAda {
 //				System.out.println(subcomponent.name)
 //			}
 //		}
-		var systemType = system.ownedRealization.implemented as SystemType;
-		if(systemType.ownedFeatures.size > 0){
-			genSystemFeature(currentFolderPath,currentFolder,systemType.ownedFeatures)
+//		var systemType = system.ownedRealization.implemented as SystemType;
+//  	if(systemType.ownedFeatures.size > 0){
+		if(system.allFeatures.size > 0){
+			genSystemFeature(currentFolderPath,currentFolder,system.allFeatures)
 		}
-		
 		
 		if(system.ownedDataSubcomponents.size > 0){
 			genSystemDataSubcomponent(currentFolderPath,currentFolder,system.ownedDataSubcomponents)

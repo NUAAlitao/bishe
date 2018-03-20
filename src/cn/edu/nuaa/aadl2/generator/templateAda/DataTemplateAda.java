@@ -18,8 +18,30 @@ public class DataTemplateAda {
     return _builder;
   }
   
+  /**
+   * 处理系统实现下的数据子组件
+   * @param folder 系统目录
+   * @param systemName 系统名称
+   * @param dataSubcomponents 数据子组件列表
+   */
   public static void genSystemDataSubcomponent(final String folder, final String systemName, final List<DataSubcomponent> dataSubcomponents) {
     Tools.createFile(folder, (systemName + "_data.ads"), DataTemplateAda.systemDataSubcomponent(systemName, dataSubcomponents).toString());
+  }
+  
+  /**
+   * 处理进程实现下的数据子组件
+   * @param dataSubcomponents 数据子组件列表
+   */
+  public static CharSequence genProcessDataSubcomponent(final List<DataSubcomponent> dataSubcomponents) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      for(final DataSubcomponent dataSubcomponent : dataSubcomponents) {
+        CharSequence _template = DataTemplateAda.template(dataSubcomponent);
+        _builder.append(_template);
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    return _builder;
   }
   
   public static CharSequence template(final DataSubcomponent subcomponent) {
@@ -44,7 +66,7 @@ public class DataTemplateAda {
           _builder.append(" : ");
           String _replace = ((DataImplementation)data).getName().replace(".", "_");
           _builder.append(_replace);
-          _builder.append(" ;");
+          _builder.append(";");
           _builder.newLineIfNotEmpty();
           _switchResult = _builder;
         }

@@ -2,6 +2,7 @@ package cn.edu.nuaa.aadl2.generator.templateAda;
 
 import cn.edu.nuaa.aadl2.generator.templateAda.AnnexSubclauseTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.DataTemplateAda;
+import cn.edu.nuaa.aadl2.generator.templateAda.FeatureTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.TemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.ThreadTemplateAda;
 import cn.edu.nuaa.aadl2.generator.utils.Tools;
@@ -9,16 +10,18 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.osate.aadl2.AnnexSubclause;
 import org.osate.aadl2.ComponentClassifier;
-import org.osate.aadl2.DataSubcomponent;
 import org.osate.aadl2.DefaultAnnexSubclause;
 import org.osate.aadl2.ProcessImplementation;
 import org.osate.aadl2.ProcessSubcomponent;
 import org.osate.aadl2.ProcessType;
-import org.osate.aadl2.Subcomponent;
-import org.osate.aadl2.ThreadSubcomponent;
 
 @SuppressWarnings("all")
 public class ProcessTemplateAda {
+  /**
+   * 处理系统实现下的进程子组件
+   * @param parentFolder 系统实现目录路径
+   * @param processSubcomponent 进程子组件
+   */
   public static void genSystemProcessSubcomponent(final String parentFolder, final ProcessSubcomponent processSubcomponent) {
     String _replace = processSubcomponent.getName().toLowerCase().replace(".", "_");
     String _plus = ((parentFolder + "/") + _replace);
@@ -66,44 +69,40 @@ public class ProcessTemplateAda {
           _builder.append(" is");
           _builder.newLineIfNotEmpty();
           {
-            EList<Subcomponent> _allSubcomponents = ((ProcessImplementation)process).getAllSubcomponents();
-            boolean _tripleNotEquals = (_allSubcomponents != null);
-            if (_tripleNotEquals) {
-              {
-                EList<Subcomponent> _allSubcomponents_1 = ((ProcessImplementation)process).getAllSubcomponents();
-                for(final Subcomponent sub : _allSubcomponents_1) {
-                  _builder.append("\t");
-                  CharSequence _switchResult_1 = null;
-                  boolean _matched_1 = false;
-                  if (sub instanceof DataSubcomponent) {
-                    _matched_1=true;
-                    StringConcatenation _builder_1 = new StringConcatenation();
-                    CharSequence _create = DataTemplateAda.create(((DataSubcomponent)sub));
-                    _builder_1.append(_create);
-                    _builder_1.newLineIfNotEmpty();
-                    _builder_1.newLine();
-                    _switchResult_1 = _builder_1;
-                  }
-                  if (!_matched_1) {
-                    if (sub instanceof ThreadSubcomponent) {
-                      _matched_1=true;
-                      StringConcatenation _builder_1 = new StringConcatenation();
-                      CharSequence _create = ThreadTemplateAda.create(((ThreadSubcomponent)sub));
-                      _builder_1.append(_create);
-                      _builder_1.newLineIfNotEmpty();
-                      _switchResult_1 = _builder_1;
-                    }
-                  }
-                  _builder.append(_switchResult_1, "\t");
-                  _builder.newLineIfNotEmpty();
-                }
-              }
+            int _size = ((ProcessImplementation)process).getAllFeatures().size();
+            boolean _greaterThan = (_size > 0);
+            if (_greaterThan) {
+              _builder.append("\t");
+              CharSequence _genProcessFeature = FeatureTemplateAda.genProcessFeature(((ProcessImplementation)process).getAllFeatures());
+              _builder.append(_genProcessFeature, "\t");
+              _builder.newLineIfNotEmpty();
             }
           }
           {
-            int _size = ((ProcessImplementation)process).getOwnedAnnexSubclauses().size();
-            boolean _greaterThan = (_size > 0);
-            if (_greaterThan) {
+            int _size_1 = ((ProcessImplementation)process).getOwnedDataSubcomponents().size();
+            boolean _greaterThan_1 = (_size_1 > 0);
+            if (_greaterThan_1) {
+              _builder.append("\t");
+              CharSequence _genProcessDataSubcomponent = DataTemplateAda.genProcessDataSubcomponent(((ProcessImplementation)process).getOwnedDataSubcomponents());
+              _builder.append(_genProcessDataSubcomponent, "\t");
+              _builder.newLineIfNotEmpty();
+            }
+          }
+          {
+            int _size_2 = ((ProcessImplementation)process).getOwnedThreadSubcomponents().size();
+            boolean _greaterThan_2 = (_size_2 > 0);
+            if (_greaterThan_2) {
+              _builder.append("\t");
+              CharSequence _genProcessThreadSubcomponent = ThreadTemplateAda.genProcessThreadSubcomponent(((ProcessImplementation)process).getOwnedThreadSubcomponents());
+              _builder.append(_genProcessThreadSubcomponent, "\t");
+              _builder.newLineIfNotEmpty();
+            }
+          }
+          _builder.newLine();
+          {
+            int _size_3 = ((ProcessImplementation)process).getOwnedAnnexSubclauses().size();
+            boolean _greaterThan_3 = (_size_3 > 0);
+            if (_greaterThan_3) {
               {
                 EList<AnnexSubclause> _ownedAnnexSubclauses = ((ProcessImplementation)process).getOwnedAnnexSubclauses();
                 for(final AnnexSubclause annexSubclause : _ownedAnnexSubclauses) {
@@ -122,9 +121,9 @@ public class ProcessTemplateAda {
           _builder.append("begin");
           _builder.newLine();
           {
-            int _size_1 = ((ProcessImplementation)process).getOwnedAnnexSubclauses().size();
-            boolean _greaterThan_1 = (_size_1 > 0);
-            if (_greaterThan_1) {
+            int _size_4 = ((ProcessImplementation)process).getOwnedAnnexSubclauses().size();
+            boolean _greaterThan_4 = (_size_4 > 0);
+            if (_greaterThan_4) {
               {
                 EList<AnnexSubclause> _ownedAnnexSubclauses_1 = ((ProcessImplementation)process).getOwnedAnnexSubclauses();
                 for(final AnnexSubclause annexSubclause_1 : _ownedAnnexSubclauses_1) {

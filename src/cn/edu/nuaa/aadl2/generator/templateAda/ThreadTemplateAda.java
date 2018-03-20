@@ -3,6 +3,7 @@ package cn.edu.nuaa.aadl2.generator.templateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.TemplateAda;
 import cn.edu.nuaa.aadl2.generator.utils.StringUtils;
 import cn.edu.nuaa.aadl2.generator.utils.Tools;
+import java.util.List;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.osate.aadl2.ComponentClassifier;
@@ -25,6 +26,25 @@ public class ThreadTemplateAda {
     return _builder;
   }
   
+  /**
+   * 处理进程实现下的线程子组件
+   * @param threadSubcomponents 线程子组件列表
+   */
+  public static CharSequence genProcessThreadSubcomponent(final List<ThreadSubcomponent> threadSubcomponents) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      for(final ThreadSubcomponent threadSubcomponent : threadSubcomponents) {
+        CharSequence _head = ThreadTemplateAda.head(threadSubcomponent);
+        _builder.append(_head);
+        _builder.newLineIfNotEmpty();
+        CharSequence _template = ThreadTemplateAda.template(threadSubcomponent);
+        _builder.append(_template);
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    return _builder;
+  }
+  
   public static CharSequence head(final ThreadSubcomponent subcomponent) {
     CharSequence _xblockexpression = null;
     {
@@ -34,10 +54,6 @@ public class ThreadTemplateAda {
       if (thread instanceof ThreadType) {
         _matched=true;
         StringConcatenation _builder = new StringConcatenation();
-        _builder.append("/*Thread Type head file*/");
-        _builder.newLine();
-        _builder.append(TemplateAda.head);
-        _builder.newLineIfNotEmpty();
         _switchResult = _builder;
       }
       if (!_matched) {

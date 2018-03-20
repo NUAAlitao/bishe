@@ -26,7 +26,7 @@ import org.osate.ba.aadlba.Target
 import org.osate.ba.aadlba.impl.BehaviorVariableHolderImpl
 
 class AnnexSubclauseTemplateAda {
-	
+
 	def static genBehaviorAnnexVarible(DefaultAnnexSubclause defaultAnnexSubclause){
 		dealBehaviorAnnexVariable(defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex)
 	}
@@ -41,7 +41,7 @@ class AnnexSubclauseTemplateAda {
 		
 	def static dealBehaviorAnnexVariable(BehaviorAnnex behaviorAnnex)'''
 		«FOR BehaviorVariable behaviorVariable : behaviorAnnex.variables»
-			«behaviorVariable.name» : «behaviorVariable.dataClassifier.name»;
+			«behaviorVariable.name» : «behaviorVariable.dataClassifier.name.convertPoint»;
 		«ENDFOR»
 	'''
 	

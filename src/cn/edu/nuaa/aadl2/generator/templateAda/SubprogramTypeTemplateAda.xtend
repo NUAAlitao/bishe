@@ -7,7 +7,7 @@ import static extension cn.edu.nuaa.aadl2.generator.utils.StringUtils.*
 import org.osate.aadl2.SubprogramType
 
 class SubprogramTypeTemplateAda {
-		static String fileName = TemplateAda.subprogramsFileName;
+	static String fileName = TemplateAda.subprogramsFileName;
 	static String initlineAds = "package "+fileName+ " is\n";
 	static String initlineAdb = '''
 		with Ada.Text_IO; use Ada.Text_IO;

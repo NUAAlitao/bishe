@@ -8,12 +8,10 @@ import cn.edu.nuaa.aadl2.generator.utils.StringUtils;
 import cn.edu.nuaa.aadl2.generator.utils.Tools;
 import com.google.common.base.Objects;
 import org.eclipse.emf.common.util.EList;
-import org.osate.aadl2.ComponentType;
 import org.osate.aadl2.ProcessSubcomponent;
 import org.osate.aadl2.SystemImplementation;
 import org.osate.aadl2.SystemSubcomponent;
 import org.osate.aadl2.SystemSubcomponentType;
-import org.osate.aadl2.SystemType;
 
 @SuppressWarnings("all")
 public class GenerateAda {
@@ -30,6 +28,12 @@ public class GenerateAda {
     }
   }
   
+  /**
+   * 处理系统实现组件
+   * @param parentFolderPath 此系统目录的父目录路径
+   * @param system 此系统实现实例
+   * @param systemFolder 此系统目录名
+   */
   public static void generateSystem(final String parentFolderPath, final SystemImplementation system, final String systemFolder) {
     String currentFolder = null;
     boolean _equals = Objects.equal(systemFolder, null);
@@ -40,12 +44,10 @@ public class GenerateAda {
     }
     String currentFolderPath = ((parentFolderPath + "/") + currentFolder);
     Tools.folder(currentFolderPath);
-    ComponentType _implemented = system.getOwnedRealization().getImplemented();
-    SystemType systemType = ((SystemType) _implemented);
-    int _size = systemType.getOwnedFeatures().size();
+    int _size = system.getAllFeatures().size();
     boolean _greaterThan = (_size > 0);
     if (_greaterThan) {
-      FeatureTemplateAda.genSystemFeature(currentFolderPath, currentFolder, systemType.getOwnedFeatures());
+      FeatureTemplateAda.genSystemFeature(currentFolderPath, currentFolder, system.getAllFeatures());
     }
     int _size_1 = system.getOwnedDataSubcomponents().size();
     boolean _greaterThan_1 = (_size_1 > 0);

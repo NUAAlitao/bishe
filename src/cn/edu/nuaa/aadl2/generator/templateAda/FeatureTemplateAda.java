@@ -8,8 +8,34 @@ import org.osate.aadl2.Feature;
 
 @SuppressWarnings("all")
 public class FeatureTemplateAda {
+  /**
+   * 处理系统类型声明中的features
+   * @param folderPath 此系统目录路径
+   * @param systemName 此系统名
+   * @param features 系统类型声明中的features列表
+   */
   public static void genSystemFeature(final String folderPath, final String systemName, final List<Feature> features) {
     Tools.createFile(folderPath, (systemName + "_feature.ads"), FeatureTemplateAda.systemFeature(systemName, features).toString());
+  }
+  
+  /**
+   * 处理进程类型声明中的features
+   * @param features 进程类型声明中的features列表
+   */
+  public static CharSequence genProcessFeature(final List<Feature> features) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      for(final Feature feature : features) {
+        String _name = feature.getName();
+        _builder.append(_name);
+        _builder.append(" : ");
+        String _convertPoint = StringUtils.convertPoint(feature.getClassifier().getName());
+        _builder.append(_convertPoint);
+        _builder.append(";");
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    return _builder;
   }
   
   public static CharSequence systemFeature(final String systemName, final List<Feature> features) {

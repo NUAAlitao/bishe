@@ -8,6 +8,7 @@ import org.osate.aadl2.ThreadSubcomponent
 import org.osate.aadl2.ThreadType
 
 import static extension cn.edu.nuaa.aadl2.generator.utils.StringUtils.*
+import java.util.List
 
 class ThreadTemplateAda {
 	def static create(ThreadSubcomponent subcomponent)'''
@@ -15,12 +16,20 @@ class ThreadTemplateAda {
 		«subcomponent.template»
 	'''
 	
+	/*
+	 * 处理进程实现下的线程子组件
+	 * @param threadSubcomponents 线程子组件列表
+	 */
+	def static genProcessThreadSubcomponent(List<ThreadSubcomponent> threadSubcomponents)'''
+		«FOR threadSubcomponent : threadSubcomponents»
+			«threadSubcomponent.head»
+			«threadSubcomponent.template»
+		«ENDFOR»
+	'''
 	def static head(ThreadSubcomponent subcomponent){
 		var thread=subcomponent.classifier
 		switch thread{
 			ThreadType : '''
-				/*Thread Type head file*/
-				«TemplateAda.head»
 			'''
 			ThreadImplementation : '''
 				task «subcomponent.name.replace('.','_')»_task is
@@ -49,5 +58,4 @@ class ThreadTemplateAda {
 			'''
 		}
 	}
-
 }
