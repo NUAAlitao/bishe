@@ -53,8 +53,13 @@ public class DataTemplateAda {
       if (data instanceof DataType) {
         _matched=true;
         StringConcatenation _builder = new StringConcatenation();
-        _builder.append("\t\t\t");
-        _builder.newLine();
+        String _name = subcomponent.getName();
+        _builder.append(_name);
+        _builder.append(" : ");
+        String _replace = ((DataType)data).getName().replace(".", "_");
+        _builder.append(_replace);
+        _builder.append(";");
+        _builder.newLineIfNotEmpty();
         _switchResult = _builder;
       }
       if (!_matched) {

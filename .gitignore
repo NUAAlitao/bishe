@@ -1,2 +1,4 @@
 #ignore all files in bin folder
 bin/
+*.xtendbin
+*._trace

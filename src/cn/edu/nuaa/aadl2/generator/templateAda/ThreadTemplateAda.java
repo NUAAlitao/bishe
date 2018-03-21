@@ -1,12 +1,16 @@
 package cn.edu.nuaa.aadl2.generator.templateAda;
 
+import cn.edu.nuaa.aadl2.generator.templateAda.AnnexSubclauseTemplateAda;
+import cn.edu.nuaa.aadl2.generator.templateAda.FeatureTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.TemplateAda;
 import cn.edu.nuaa.aadl2.generator.utils.StringUtils;
 import cn.edu.nuaa.aadl2.generator.utils.Tools;
 import java.util.List;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtend2.lib.StringConcatenation;
+import org.osate.aadl2.AnnexSubclause;
 import org.osate.aadl2.ComponentClassifier;
+import org.osate.aadl2.DefaultAnnexSubclause;
 import org.osate.aadl2.SubprogramCall;
 import org.osate.aadl2.SubprogramCallSequence;
 import org.osate.aadl2.ThreadImplementation;
@@ -60,11 +64,29 @@ public class ThreadTemplateAda {
         if (thread instanceof ThreadImplementation) {
           _matched=true;
           StringConcatenation _builder = new StringConcatenation();
-          _builder.append("task ");
+          _builder.append("task type ");
           String _replace = subcomponent.getName().replace(".", "_");
           _builder.append(_replace);
           _builder.append("_task is");
           _builder.newLineIfNotEmpty();
+          {
+            int _size = subcomponent.getInModes().size();
+            boolean _greaterThan = (_size > 0);
+            if (_greaterThan) {
+              _builder.append("\t");
+              _builder.append("entry Start(");
+              {
+                int _size_1 = ((ThreadImplementation)thread).getAllFeatures().size();
+                boolean _greaterThan_1 = (_size_1 > 0);
+                if (_greaterThan_1) {
+                  String _clearspace = StringUtils.clearspace(FeatureTemplateAda.genThreadFeature(((ThreadImplementation)thread).getAllFeatures()).toString());
+                  _builder.append(_clearspace, "\t");
+                }
+              }
+              _builder.append(");");
+              _builder.newLineIfNotEmpty();
+            }
+          }
           _builder.append("end ");
           String _replace_1 = subcomponent.getName().replace(",", "_");
           _builder.append(_replace_1);
@@ -100,8 +122,51 @@ public class ThreadTemplateAda {
           _builder.append(_convertPoint);
           _builder.append("_task is");
           _builder.newLineIfNotEmpty();
+          {
+            int _size = ((ThreadImplementation)thread).getOwnedAnnexSubclauses().size();
+            boolean _greaterThan = (_size > 0);
+            if (_greaterThan) {
+              {
+                EList<AnnexSubclause> _ownedAnnexSubclauses = ((ThreadImplementation)thread).getOwnedAnnexSubclauses();
+                for(final AnnexSubclause annexSubclause : _ownedAnnexSubclauses) {
+                  _builder.append("\t");
+                  CharSequence _genBehaviorAnnexVarible = AnnexSubclauseTemplateAda.genBehaviorAnnexVarible(((DefaultAnnexSubclause) annexSubclause));
+                  _builder.append(_genBehaviorAnnexVarible, "\t");
+                  _builder.newLineIfNotEmpty();
+                  _builder.append("\t");
+                  String _genBehaviorAnnexState = AnnexSubclauseTemplateAda.genBehaviorAnnexState(((DefaultAnnexSubclause) annexSubclause));
+                  _builder.append(_genBehaviorAnnexState, "\t");
+                  _builder.newLineIfNotEmpty();
+                  _builder.append("\t");
+                  _builder.append("current_state : States;");
+                  _builder.newLine();
+                }
+              }
+            }
+          }
           _builder.append("begin");
           _builder.newLine();
+          {
+            int _size_1 = subcomponent.getInModes().size();
+            boolean _greaterThan_1 = (_size_1 > 0);
+            if (_greaterThan_1) {
+              _builder.append("\t");
+              _builder.append("accept Start(");
+              {
+                int _size_2 = ((ThreadImplementation)thread).getAllFeatures().size();
+                boolean _greaterThan_2 = (_size_2 > 0);
+                if (_greaterThan_2) {
+                  String _clearspace = StringUtils.clearspace(FeatureTemplateAda.genThreadFeature(((ThreadImplementation)thread).getAllFeatures()).toString());
+                  _builder.append(_clearspace, "\t");
+                }
+              }
+              _builder.append(") do");
+              _builder.newLineIfNotEmpty();
+              _builder.append("\t");
+              _builder.append("end Start;");
+              _builder.newLine();
+            }
+          }
           {
             EList<SubprogramCallSequence> _ownedSubprogramCallSequences = ((ThreadImplementation)thread).getOwnedSubprogramCallSequences();
             for(final SubprogramCallSequence subprogramCallSequence : _ownedSubprogramCallSequences) {
@@ -114,6 +179,25 @@ public class ThreadTemplateAda {
                   String _convertPoint_1 = StringUtils.convertPoint(Tools.getCalledSubprogramName(subprogramCall.getCalledSubprogram().toString()));
                   _builder.append(_convertPoint_1, "\t");
                   _builder.append(";");
+                  _builder.newLineIfNotEmpty();
+                }
+              }
+            }
+          }
+          {
+            int _size_3 = ((ThreadImplementation)thread).getOwnedAnnexSubclauses().size();
+            boolean _greaterThan_3 = (_size_3 > 0);
+            if (_greaterThan_3) {
+              {
+                EList<AnnexSubclause> _ownedAnnexSubclauses_1 = ((ThreadImplementation)thread).getOwnedAnnexSubclauses();
+                for(final AnnexSubclause annexSubclause_1 : _ownedAnnexSubclauses_1) {
+                  _builder.append("\t");
+                  String _clearspace_1 = StringUtils.clearspace(AnnexSubclauseTemplateAda.initBehaviorAnnexState(((DefaultAnnexSubclause) annexSubclause_1)).toString());
+                  _builder.append(_clearspace_1, "\t");
+                  _builder.newLineIfNotEmpty();
+                  _builder.append("\t");
+                  CharSequence _genBehaviorAnnexTransition = AnnexSubclauseTemplateAda.genBehaviorAnnexTransition(((DefaultAnnexSubclause) annexSubclause_1));
+                  _builder.append(_genBehaviorAnnexTransition, "\t");
                   _builder.newLineIfNotEmpty();
                 }
               }
