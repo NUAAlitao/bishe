@@ -48,6 +48,7 @@ class ModeTemplateAda {
 		end case;
 	'''
 	
+	
 	def static dealModeTransitionTrigger(List<ModeTransitionTrigger> modeTransitionTriggers)'''
 		«FOR ModeTransitionTrigger modeTransitionTrigger : modeTransitionTriggers»
 			«modeTransitionTrigger.triggerPort.name»
