@@ -35,7 +35,7 @@ class DataTemplateAda {
 		var data=subcomponent.classifier
 		switch data {
 			DataType :'''
-			
+			«subcomponent.name» : «data.name.replace(".","_")»;
 			'''
 			DataImplementation :'''
 			«subcomponent.name» : «data.name.replace(".","_")»;

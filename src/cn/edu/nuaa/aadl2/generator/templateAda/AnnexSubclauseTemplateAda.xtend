@@ -15,15 +15,20 @@ import org.osate.ba.aadlba.BehaviorBooleanLiteral
 import org.osate.ba.aadlba.BehaviorVariableHolder
 
 import static extension cn.edu.nuaa.aadl2.generator.utils.StringUtils.*
-import org.osate.ba.aadlba.impl.BehaviorTransitionImpl
 import org.osate.ba.utils.AadlBaVisitors
-import org.osate.ba.aadlba.BehaviorAction
 import org.osate.ba.aadlba.BehaviorActionSequence
 import org.osate.ba.aadlba.PortSendAction
 import org.osate.ba.aadlba.PortDequeueAction
 import org.osate.ba.aadlba.AssignmentAction
 import org.osate.ba.aadlba.Target
 import org.osate.ba.aadlba.impl.BehaviorVariableHolderImpl
+import org.osate.ba.aadlba.DispatchCondition
+import java.util.Map
+import java.util.HashMap
+import org.osate.ba.aadlba.DispatchTriggerLogicalExpression
+import org.osate.ba.aadlba.EventDataPortHolder
+import org.osate.ba.aadlba.EventPortHolder
+import org.osate.ba.aadlba.DataPortHolder
 
 class AnnexSubclauseTemplateAda {
 
@@ -38,7 +43,20 @@ class AnnexSubclauseTemplateAda {
 	def static genBehaviorAnnexTransition(DefaultAnnexSubclause defaultAnnexSubclause){
 		dealBehaviorAnnexTransition(defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex)
 	}
-		
+	
+	def static initBehaviorAnnexState(DefaultAnnexSubclause defaultAnnexSubclause){
+		dealInitState(defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex).toString.clearspace
+	}
+	
+	def static dealInitState(BehaviorAnnex behaviorAnnex)'''
+		current_state 
+		«FOR behaviorState : behaviorAnnex.states»
+			«IF behaviorState.initial == true»
+				:= «behaviorState.name»;
+			«ENDIF»
+		«ENDFOR»
+	'''
+	
 	def static dealBehaviorAnnexVariable(BehaviorAnnex behaviorAnnex)'''
 		«FOR BehaviorVariable behaviorVariable : behaviorAnnex.variables»
 			«behaviorVariable.name» : «behaviorVariable.dataClassifier.name.convertPoint»;
@@ -46,7 +64,7 @@ class AnnexSubclauseTemplateAda {
 	'''
 	
 	def static dealBehaviorAnnexState(BehaviorAnnex behaviorAnnex)'''
-		type State is (
+		type States is (
 		«FOR BehaviorState behaviorState : behaviorAnnex.states.subList(0,behaviorAnnex.states.size-1)»
 			«behaviorState.name», 
 		«ENDFOR»
@@ -55,13 +73,21 @@ class AnnexSubclauseTemplateAda {
 	'''
 	def static dealBehaviorAnnexTransition(BehaviorAnnex behaviorAnnex)'''
 		case current_state is
-			«FOR BehaviorState behaviorState : behaviorAnnex.states»
-				when «behaviorState.name» =>
-					«FOR BehaviorTransition behaviorTransition : AadlBaVisitors.getTransitionWhereSrc(behaviorState)»
-					if («dealBehaviorAnnexTransitionCondition(behaviorTransition).toString.clearspace.dealMultipleSpace») then
-						«dealBehaviorAnnexTransitionAction(behaviorTransition)»
+		«var Map<BehaviorTransition,BehaviorTransition> isUsed = new HashMap<BehaviorTransition,BehaviorTransition>()»
+		«FOR BehaviorTransition behaviorTransition : behaviorAnnex.transitions»
+			«IF isUsed.get(behaviorTransition) === null»
+				when «behaviorTransition.sourceState.name» =>
+					«FOR BehaviorTransition behaviorTransition1 : AadlBaVisitors.getTransitionWhereSrc(behaviorTransition.sourceState)»
+						«IF isUsed.get(behaviorTransition1) === null»
+							if («dealBehaviorAnnexTransitionCondition(behaviorTransition1).toString.clearspace.dealMultipleSpace») then
+								«dealBehaviorAnnexTransitionAction(behaviorTransition1)»
+								current_state := «behaviorTransition1.destinationState.name»;
+							end if;
+							«isUsed.put(behaviorTransition1,behaviorTransition1)»
+						«ENDIF»
 					«ENDFOR»
-			«ENDFOR»
+			«ENDIF»
+		«ENDFOR»
 		end case;
 	'''
 	
@@ -74,7 +100,7 @@ class AnnexSubclauseTemplateAda {
 					«actionElement.dealActionElement»
 				'''
 				PortSendAction:'''
-					«actionElement.dealActionElement»
+					«actionElement.dealActionElement.toString.clearspace»
 				'''
 				PortDequeueAction:'''
 					«actionElement.dealActionElement»
@@ -94,7 +120,7 @@ class AnnexSubclauseTemplateAda {
 					«action.dealActionElement»
 				'''
 				PortSendAction:'''
-					«action.dealActionElement»
+					«action.dealActionElement.toString.clearspace»
 				'''
 				PortDequeueAction:'''
 					«action.dealActionElement»
@@ -107,13 +133,17 @@ class AnnexSubclauseTemplateAda {
 		«ENDFOR»
 	'''
 	def static dealActionElement(PortSendAction portSendAction)'''
-		«portSendAction.port.element.name» = «portSendAction.valueExpression.dealValueExpression.clearspace»;
+		«portSendAction.port.element.name»
+		«IF portSendAction.valueExpression !== null»
+			:=«portSendAction.valueExpression.dealValueExpression.clearspace»
+		«ENDIF»
+		;
 	'''
 	def static dealActionElement(PortDequeueAction portDequeueAction)'''
-		«portDequeueAction.target.dealActionTarget.toString.clearspace» = «portDequeueAction.port.element.name»;
+		«portDequeueAction.target.dealActionTarget.toString.clearspace» := «portDequeueAction.port.element.name»;
 	'''
 	def static dealActionElement(AssignmentAction assignmentAction)'''
-		«assignmentAction.target.dealActionTarget.toString.clearspace» = «assignmentAction.valueExpression.dealValueExpression.clearspace»;
+		«assignmentAction.target.dealActionTarget.toString.clearspace» := «assignmentAction.valueExpression.dealValueExpression.clearspace»;
 	'''
 	def static dealActionTarget(Target target)'''
 		«switch target{
@@ -125,10 +155,41 @@ class AnnexSubclauseTemplateAda {
 	
 	def static dealBehaviorAnnexTransitionCondition(BehaviorTransition behaviorTransition)'''
 		«IF behaviorTransition.condition !== null»
-			«dealValueExpression(behaviorTransition.condition as ValueExpression)»
+			«switch behaviorTransition.condition{
+				ValueExpression:
+					dealValueExpression(behaviorTransition.condition as ValueExpression)
+				DispatchCondition:
+					dealDispatchCondition(behaviorTransition.condition as DispatchCondition)
+			}»
 		«ELSE»
 			True
 		«ENDIF»
+	'''
+	
+	def static dealDispatchCondition(DispatchCondition dispatchCondition)'''
+		«switch dispatchCondition.dispatchTriggerCondition{
+			DispatchTriggerLogicalExpression:'''
+				«dealDispatchTriggerLogicalExpression(dispatchCondition.dispatchTriggerCondition as DispatchTriggerLogicalExpression)»
+			'''
+		}»
+	'''
+	
+	def static dealDispatchTriggerLogicalExpression(DispatchTriggerLogicalExpression logicalExpression)'''
+		«FOR dispatchConjunction :logicalExpression.dispatchConjunctions»
+			«FOR dispatchTrigger : dispatchConjunction.dispatchTriggers»
+				«switch dispatchTrigger{
+					EventDataPortHolder:'''
+						«dispatchTrigger.element.name»
+					'''
+					EventPortHolder:'''
+						«dispatchTrigger.element.name»
+					'''
+					DataPortHolder:'''
+						«dispatchTrigger.element.name»
+					'''
+				}»
+			«ENDFOR»
+		«ENDFOR»
 	'''
 	def static String dealValueExpression(ValueExpression valueExpression)'''
 		«var relations = valueExpression.relations»
@@ -158,26 +219,26 @@ class AnnexSubclauseTemplateAda {
 				'''
 			}» «relation.relationalOperator» 
 			«IF relation.secondExpression !== null»
-			«var secondValue = relation.secondExpression.terms.get(0).factors.get(0).firstValue»
-			«switch secondValue {
-				DataComponentReference:'''
-					«dealDataComponentReference(secondValue as DataComponentReference).toString.clearspace»
-				'''
-				BehaviorIntegerLiteral:'''
-					«dealBehaivorIntegerLiteral(secondValue as BehaviorIntegerLiteral)»
-				'''
-				BehaviorRealLiteral:'''
-					«dealBehaivorRealLiteral(secondValue as BehaviorRealLiteral)»
-				'''
-				BehaviorBooleanLiteral:'''
-					«dealBehaviorBooleanLiteral(secondValue as BehaviorBooleanLiteral)»
-				'''
-				BehaviorVariableHolder:'''
-					«dealBehaviorVariableHolder(secondValue as BehaviorVariableHolder)»
-				'''
-				ValueExpression:'''
-					«dealValueExpression(secondValue as ValueExpression)»
-				'''
+				«var secondValue = relation.secondExpression.terms.get(0).factors.get(0).firstValue»
+				«switch secondValue {
+					DataComponentReference:'''
+						«dealDataComponentReference(secondValue as DataComponentReference).toString.clearspace»
+					'''
+					BehaviorIntegerLiteral:'''
+						«dealBehaivorIntegerLiteral(secondValue as BehaviorIntegerLiteral)»
+					'''
+					BehaviorRealLiteral:'''
+						«dealBehaivorRealLiteral(secondValue as BehaviorRealLiteral)»
+					'''
+					BehaviorBooleanLiteral:'''
+						«dealBehaviorBooleanLiteral(secondValue as BehaviorBooleanLiteral)»
+					'''
+					BehaviorVariableHolder:'''
+						«dealBehaviorVariableHolder(secondValue as BehaviorVariableHolder)»
+					'''
+					ValueExpression:'''
+						«dealValueExpression(secondValue as ValueExpression)»
+					'''
 			}»«ENDIF») 
 			«IF i < logicalOperators.size»
 				«logicalOperators.get(i++)»

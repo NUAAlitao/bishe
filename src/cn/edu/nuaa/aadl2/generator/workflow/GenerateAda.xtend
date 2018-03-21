@@ -24,12 +24,6 @@ class GenerateAda {
 	def static generate(SystemImplementation system){
 		if (system.name!=null){
 			Tools.folder(adaFolder)
-			//在工程下创建名为 system_name 的文件夹
-//			Tools.folder(currentFolder)
-//			var systemType = system.ownedRealization.implemented as SystemType;
-//			systemType.ownedFeatures;
-			//设置生成代码系统的文件夹名
-//			TemplateAda.systemfolder=adaFolder +"/"+system.name.convert
 			TemplateAda.packageName=Tools.getPackageName(system.eContainer.eContainer.toString)
 			TemplateAda.subprogramsFileName = TemplateAda.packageName+"_Subprograms"
 			generateSystem(adaFolder,system,null)
@@ -50,16 +44,7 @@ class GenerateAda {
 		}
 		var currentFolderPath = parentFolderPath + "/" + currentFolder
 		Tools.folder(currentFolderPath)
-//		if (system.allSubcomponents!=null){
-//			//如果systemImplementation对象拥有Subcomponent
-//			for( Subcomponent subcomponent : system.allSubcomponents){
-//				//遍历所有Subcomponent，通过Template生成对应代码
-//				subcomponent.template
-//				System.out.println(subcomponent.name)
-//			}
-//		}
-//		var systemType = system.ownedRealization.implemented as SystemType;
-//  	if(systemType.ownedFeatures.size > 0){
+
 		if(system.allFeatures.size > 0){
 			genSystemFeature(currentFolderPath,currentFolder,system.allFeatures)
 		}

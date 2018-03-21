@@ -261,9 +261,6 @@ public class Tools {
 		Pattern pattern = Pattern.compile("(\\(name: (.*)\\))");
 		Matcher matcher = pattern.matcher(input);
 		if(matcher.find()) {
-			System.out.println(matcher.group(0));
-			System.out.println(matcher.group(1));
-			System.out.println(matcher.group(2));
 			return matcher.group(2);
 		}
 		return "";
