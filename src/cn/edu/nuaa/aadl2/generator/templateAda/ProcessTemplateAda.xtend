@@ -27,8 +27,8 @@ class ProcessTemplateAda {
 		 * @param processSubcomponent 进程子组件
 		 */
 		def static genSystemProcessSubcomponent(String parentFolder, ProcessSubcomponent processSubcomponent){
-				Tools.folder(parentFolder+"/"+processSubcomponent.name.toLowerCase.replace(".","_"))
-				Tools.createFile(parentFolder+"/"+processSubcomponent.name.toLowerCase.replace(".","_"),processSubcomponent.name.replace(".","_")+".adb",processSubcomponent.template.toString)
+				Tools.folder(parentFolder+"/process_"+processSubcomponent.name.toLowerCase.replace(".","_"))
+				Tools.createFile(parentFolder+"/process_"+processSubcomponent.name.toLowerCase.replace(".","_"),processSubcomponent.name.replace(".","_")+".adb",processSubcomponent.template.toString)
 		}
 		
 		def static template(ProcessSubcomponent processSubcomponent){
@@ -66,15 +66,15 @@ class ProcessTemplateAda {
 							«genBehaviorAnnexTransition(annexSubclause as DefaultAnnexSubclause)»
 						«ENDFOR»
 					«ENDIF»
-				
 					«IF process.ownedModes.size > 0»
 						«process.ownedModes.initMode.toString.clearspace»
 					«ENDIF»
 					«IF process.ownedModeTransitions.size > 0»
 						«process.ownedModeTransitions.genModeTransition»
 					«ENDIF»
-				
-					«dealProcessMode(process.ownedModes,process.allSubcomponents)»
+					«IF process.ownedModes.size >0»
+						«dealProcessMode(process.ownedModes,process.allSubcomponents)»
+					«ENDIF»
 				end «processSubcomponent.name.replace('.','_')»;
 				'''
 				}

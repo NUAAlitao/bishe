@@ -85,6 +85,17 @@ public class ThreadTemplateAda {
               }
               _builder.append(");");
               _builder.newLineIfNotEmpty();
+            } else {
+              int _size_2 = ((ThreadImplementation)thread).getAllFeatures().size();
+              boolean _greaterThan_2 = (_size_2 > 0);
+              if (_greaterThan_2) {
+                _builder.append("\t");
+                _builder.append("entry Start(");
+                String _clearspace_1 = StringUtils.clearspace(FeatureTemplateAda.genThreadFeature(((ThreadImplementation)thread).getAllFeatures()).toString());
+                _builder.append(_clearspace_1, "\t");
+                _builder.append(");");
+                _builder.newLineIfNotEmpty();
+              }
             }
           }
           _builder.append("end ");
@@ -147,15 +158,13 @@ public class ThreadTemplateAda {
           _builder.append("begin");
           _builder.newLine();
           {
-            int _size_1 = subcomponent.getInModes().size();
-            boolean _greaterThan_1 = (_size_1 > 0);
-            if (_greaterThan_1) {
+            if (((subcomponent.getInModes().size() > 0) || (((ThreadImplementation)thread).getAllFeatures().size() > 0))) {
               _builder.append("\t");
               _builder.append("accept Start(");
               {
-                int _size_2 = ((ThreadImplementation)thread).getAllFeatures().size();
-                boolean _greaterThan_2 = (_size_2 > 0);
-                if (_greaterThan_2) {
+                int _size_1 = ((ThreadImplementation)thread).getAllFeatures().size();
+                boolean _greaterThan_1 = (_size_1 > 0);
+                if (_greaterThan_1) {
                   String _clearspace = StringUtils.clearspace(FeatureTemplateAda.genThreadFeature(((ThreadImplementation)thread).getAllFeatures()).toString());
                   _builder.append(_clearspace, "\t");
                 }
@@ -185,9 +194,9 @@ public class ThreadTemplateAda {
             }
           }
           {
-            int _size_3 = ((ThreadImplementation)thread).getOwnedAnnexSubclauses().size();
-            boolean _greaterThan_3 = (_size_3 > 0);
-            if (_greaterThan_3) {
+            int _size_2 = ((ThreadImplementation)thread).getOwnedAnnexSubclauses().size();
+            boolean _greaterThan_2 = (_size_2 > 0);
+            if (_greaterThan_2) {
               {
                 EList<AnnexSubclause> _ownedAnnexSubclauses_1 = ((ThreadImplementation)thread).getOwnedAnnexSubclauses();
                 for(final AnnexSubclause annexSubclause_1 : _ownedAnnexSubclauses_1) {
