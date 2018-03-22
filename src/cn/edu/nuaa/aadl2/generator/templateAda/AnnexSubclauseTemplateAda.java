@@ -19,6 +19,7 @@ import org.osate.ba.aadlba.BehaviorCondition;
 import org.osate.ba.aadlba.BehaviorIntegerLiteral;
 import org.osate.ba.aadlba.BehaviorRealLiteral;
 import org.osate.ba.aadlba.BehaviorState;
+import org.osate.ba.aadlba.BehaviorTime;
 import org.osate.ba.aadlba.BehaviorTransition;
 import org.osate.ba.aadlba.BehaviorVariable;
 import org.osate.ba.aadlba.BehaviorVariableHolder;
@@ -32,6 +33,7 @@ import org.osate.ba.aadlba.DispatchTriggerCondition;
 import org.osate.ba.aadlba.DispatchTriggerLogicalExpression;
 import org.osate.ba.aadlba.EventDataPortHolder;
 import org.osate.ba.aadlba.EventPortHolder;
+import org.osate.ba.aadlba.IntegerValue;
 import org.osate.ba.aadlba.LogicalOperator;
 import org.osate.ba.aadlba.PortDequeueAction;
 import org.osate.ba.aadlba.PortSendAction;
@@ -255,9 +257,55 @@ public class AnnexSubclauseTemplateAda {
             _builder.newLineIfNotEmpty();
           }
         }
+        {
+          BehaviorTime _timeout = actionBlock.getTimeout();
+          boolean _tripleNotEquals_1 = (_timeout != null);
+          if (_tripleNotEquals_1) {
+            _builder.append("delay ");
+            String _clearspace = StringUtils.clearspace(AnnexSubclauseTemplateAda.dealActionTimeOut(actionBlock.getTimeout()).toString());
+            _builder.append(_clearspace);
+            _builder.append(";");
+            _builder.newLineIfNotEmpty();
+          }
+        }
       }
     }
     return _builder;
+  }
+  
+  public static CharSequence dealActionTimeOut(final BehaviorTime behaviorTime) {
+    CharSequence _xblockexpression = null;
+    {
+      float base = 0;
+      String _name = behaviorTime.getUnit().getName();
+      if (_name != null) {
+        switch (_name) {
+          case "ms":
+            base = 0.001f;
+            break;
+          default:
+            base = 1;
+            break;
+        }
+      } else {
+        base = 1;
+      }
+      CharSequence _switchResult_1 = null;
+      IntegerValue _integerValue = behaviorTime.getIntegerValue();
+      boolean _matched = false;
+      if (_integerValue instanceof BehaviorIntegerLiteral) {
+        _matched=true;
+        StringConcatenation _builder = new StringConcatenation();
+        IntegerValue _integerValue_1 = behaviorTime.getIntegerValue();
+        int _parseInt = Integer.parseInt(StringUtils.clearspace(AnnexSubclauseTemplateAda.dealBehaviorIntegerLiteral(((BehaviorIntegerLiteral) _integerValue_1)).toString()));
+        String _string = Float.valueOf((_parseInt * base)).toString();
+        _builder.append(_string);
+        _builder.newLineIfNotEmpty();
+        _switchResult_1 = _builder;
+      }
+      _xblockexpression = _switchResult_1;
+    }
+    return _xblockexpression;
   }
   
   public static CharSequence dealActionElement(final BehaviorActionSequence behaviorActionSequence) {
@@ -504,8 +552,8 @@ public class AnnexSubclauseTemplateAda {
           if (firstValue instanceof BehaviorIntegerLiteral) {
             _matched=true;
             StringConcatenation _builder_1 = new StringConcatenation();
-            CharSequence _dealBehaivorIntegerLiteral = AnnexSubclauseTemplateAda.dealBehaivorIntegerLiteral(((BehaviorIntegerLiteral) firstValue));
-            _builder_1.append(_dealBehaivorIntegerLiteral);
+            CharSequence _dealBehaviorIntegerLiteral = AnnexSubclauseTemplateAda.dealBehaviorIntegerLiteral(((BehaviorIntegerLiteral) firstValue));
+            _builder_1.append(_dealBehaviorIntegerLiteral);
             _builder_1.newLineIfNotEmpty();
             _switchResult = _builder_1;
           }
@@ -514,8 +562,8 @@ public class AnnexSubclauseTemplateAda {
           if (firstValue instanceof BehaviorRealLiteral) {
             _matched=true;
             StringConcatenation _builder_1 = new StringConcatenation();
-            CharSequence _dealBehaivorRealLiteral = AnnexSubclauseTemplateAda.dealBehaivorRealLiteral(((BehaviorRealLiteral) firstValue));
-            _builder_1.append(_dealBehaivorRealLiteral);
+            CharSequence _dealBehaviorRealLiteral = AnnexSubclauseTemplateAda.dealBehaviorRealLiteral(((BehaviorRealLiteral) firstValue));
+            _builder_1.append(_dealBehaviorRealLiteral);
             _builder_1.newLineIfNotEmpty();
             _switchResult = _builder_1;
           }
@@ -576,8 +624,8 @@ public class AnnexSubclauseTemplateAda {
               if (secondValue instanceof BehaviorIntegerLiteral) {
                 _matched_1=true;
                 StringConcatenation _builder_1 = new StringConcatenation();
-                CharSequence _dealBehaivorIntegerLiteral = AnnexSubclauseTemplateAda.dealBehaivorIntegerLiteral(((BehaviorIntegerLiteral) secondValue));
-                _builder_1.append(_dealBehaivorIntegerLiteral);
+                CharSequence _dealBehaviorIntegerLiteral = AnnexSubclauseTemplateAda.dealBehaviorIntegerLiteral(((BehaviorIntegerLiteral) secondValue));
+                _builder_1.append(_dealBehaviorIntegerLiteral);
                 _builder_1.newLineIfNotEmpty();
                 _switchResult_1 = _builder_1;
               }
@@ -586,8 +634,8 @@ public class AnnexSubclauseTemplateAda {
               if (secondValue instanceof BehaviorRealLiteral) {
                 _matched_1=true;
                 StringConcatenation _builder_1 = new StringConcatenation();
-                CharSequence _dealBehaivorRealLiteral = AnnexSubclauseTemplateAda.dealBehaivorRealLiteral(((BehaviorRealLiteral) secondValue));
-                _builder_1.append(_dealBehaivorRealLiteral);
+                CharSequence _dealBehaviorRealLiteral = AnnexSubclauseTemplateAda.dealBehaviorRealLiteral(((BehaviorRealLiteral) secondValue));
+                _builder_1.append(_dealBehaviorRealLiteral);
                 _builder_1.newLineIfNotEmpty();
                 _switchResult_1 = _builder_1;
               }
@@ -665,7 +713,7 @@ public class AnnexSubclauseTemplateAda {
     return _builder;
   }
   
-  public static CharSequence dealBehaivorIntegerLiteral(final BehaviorIntegerLiteral behaviorIntegerLiteral) {
+  public static CharSequence dealBehaviorIntegerLiteral(final BehaviorIntegerLiteral behaviorIntegerLiteral) {
     StringConcatenation _builder = new StringConcatenation();
     long _value = behaviorIntegerLiteral.getValue();
     _builder.append(_value);
@@ -673,7 +721,7 @@ public class AnnexSubclauseTemplateAda {
     return _builder;
   }
   
-  public static CharSequence dealBehaivorRealLiteral(final BehaviorRealLiteral behaviorRealLiteral) {
+  public static CharSequence dealBehaviorRealLiteral(final BehaviorRealLiteral behaviorRealLiteral) {
     StringConcatenation _builder = new StringConcatenation();
     double _value = behaviorRealLiteral.getValue();
     _builder.append(_value);

@@ -30,10 +30,10 @@ public class ProcessTemplateAda {
    */
   public static void genSystemProcessSubcomponent(final String parentFolder, final ProcessSubcomponent processSubcomponent) {
     String _replace = processSubcomponent.getName().toLowerCase().replace(".", "_");
-    String _plus = ((parentFolder + "/") + _replace);
+    String _plus = ((parentFolder + "/process_") + _replace);
     Tools.folder(_plus);
     String _replace_1 = processSubcomponent.getName().toLowerCase().replace(".", "_");
-    String _plus_1 = ((parentFolder + "/") + _replace_1);
+    String _plus_1 = ((parentFolder + "/process_") + _replace_1);
     String _replace_2 = processSubcomponent.getName().replace(".", "_");
     String _plus_2 = (_replace_2 + ".adb");
     Tools.createFile(_plus_1, _plus_2, ProcessTemplateAda.template(processSubcomponent).toString());
@@ -159,7 +159,6 @@ public class ProcessTemplateAda {
               }
             }
           }
-          _builder.newLine();
           {
             int _size_6 = ((ProcessImplementation)process).getOwnedModes().size();
             boolean _greaterThan_6 = (_size_6 > 0);
@@ -180,11 +179,16 @@ public class ProcessTemplateAda {
               _builder.newLineIfNotEmpty();
             }
           }
-          _builder.newLine();
-          _builder.append("\t");
-          CharSequence _dealProcessMode = ProcessTemplateAda.dealProcessMode(((ProcessImplementation)process).getOwnedModes(), ((ProcessImplementation)process).getAllSubcomponents());
-          _builder.append(_dealProcessMode, "\t");
-          _builder.newLineIfNotEmpty();
+          {
+            int _size_8 = ((ProcessImplementation)process).getOwnedModes().size();
+            boolean _greaterThan_8 = (_size_8 > 0);
+            if (_greaterThan_8) {
+              _builder.append("\t");
+              CharSequence _dealProcessMode = ProcessTemplateAda.dealProcessMode(((ProcessImplementation)process).getOwnedModes(), ((ProcessImplementation)process).getAllSubcomponents());
+              _builder.append(_dealProcessMode, "\t");
+              _builder.newLineIfNotEmpty();
+            }
+          }
           _builder.append("end ");
           String _replace_1 = processSubcomponent.getName().replace(".", "_");
           _builder.append(_replace_1);

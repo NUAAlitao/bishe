@@ -39,6 +39,8 @@ class ThreadTemplateAda {
 				task type «subcomponent.name.replace('.','_')»_task is
 					«IF subcomponent.inModes.size >0»
 					entry Start(«IF thread.allFeatures.size>0»«thread.allFeatures.genThreadFeature.toString.clearspace»«ENDIF»);
+					«ELSEIF thread.allFeatures.size>0»
+					entry Start(«thread.allFeatures.genThreadFeature.toString.clearspace»);
 					«ENDIF»
 				end «subcomponent.name.replace(',','_')»_task;
 			'''
@@ -62,7 +64,7 @@ class ThreadTemplateAda {
 						«ENDFOR»
 					«ENDIF»
 				begin
-					«IF subcomponent.inModes.size>0»
+					«IF subcomponent.inModes.size>0 || thread.allFeatures.size>0»
 					accept Start(«IF thread.allFeatures.size>0»«thread.allFeatures.genThreadFeature.toString.clearspace»«ENDIF») do
 					end Start;
 					«ENDIF»

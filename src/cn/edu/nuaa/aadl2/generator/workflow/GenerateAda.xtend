@@ -36,19 +36,24 @@ class GenerateAda {
 	 * @param systemFolder 此系统目录名
 	 */
 	def static generateSystem(String parentFolderPath, SystemImplementation system, String systemFolder){
-		var String currentFolder
+		var String currentFolder = "system_"
 		if(systemFolder == null){
-			currentFolder = system.name.convert 
+			currentFolder += system.name.convert 
 		}else{
-			currentFolder = systemFolder.convert
+			currentFolder += systemFolder.convert
 		}
 		var currentFolderPath = parentFolderPath + "/" + currentFolder
 		Tools.folder(currentFolderPath)
 
+		if(system.ownedSystemSubcomponents.size > 0){
+			for(SystemSubcomponent systemsubcomponent : system.ownedSystemSubcomponents){
+				var SystemImplementation systemImplementation = systemsubcomponent.systemSubcomponentType as SystemImplementation
+				generateSystem(currentFolderPath,systemImplementation, systemsubcomponent.name)
+			}
+		}
 		if(system.allFeatures.size > 0){
 			genSystemFeature(currentFolderPath,currentFolder,system.allFeatures)
 		}
-		
 		if(system.ownedDataSubcomponents.size > 0){
 			genSystemDataSubcomponent(currentFolderPath,currentFolder,system.ownedDataSubcomponents)
 		}
@@ -57,12 +62,7 @@ class GenerateAda {
 				genSystemProcessSubcomponent(currentFolderPath,processsubcomponent)
 			}
 		}
-		if(system.ownedSystemSubcomponents.size > 0){
-			for(SystemSubcomponent systemsubcomponent : system.ownedSystemSubcomponents){
-				var SystemImplementation systemImplementation = systemsubcomponent.systemSubcomponentType as SystemImplementation
-				generateSystem(currentFolderPath,systemImplementation, systemsubcomponent.name)
-			}
-		}
+
 		
 //		var packageSectionImpl = system.eContainer() as PublicPackageSectionImpl;
 //		var classifiers = packageSectionImpl.getOwnedClassifiers();

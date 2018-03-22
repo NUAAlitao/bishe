@@ -29,6 +29,7 @@ import org.osate.ba.aadlba.DispatchTriggerLogicalExpression
 import org.osate.ba.aadlba.EventDataPortHolder
 import org.osate.ba.aadlba.EventPortHolder
 import org.osate.ba.aadlba.DataPortHolder
+import org.osate.ba.aadlba.BehaviorTime
 
 class AnnexSubclauseTemplateAda {
 
@@ -93,26 +94,41 @@ class AnnexSubclauseTemplateAda {
 	
 	def static dealBehaviorAnnexTransitionAction(BehaviorTransition behaviorTransition)'''
 		«IF behaviorTransition.actionBlock !== null»
-		«var actionBlock = behaviorTransition.actionBlock»
-		«FOR actionElement : actionBlock.children»
-			«switch actionElement{
-				BehaviorActionSequence:'''
-					«actionElement.dealActionElement»
-				'''
-				PortSendAction:'''
-					«actionElement.dealActionElement.toString.clearspace»
-				'''
-				PortDequeueAction:'''
-					«actionElement.dealActionElement»
-				'''
-				AssignmentAction:'''
-					«actionElement.dealActionElement»
-				'''
-				default:null
-			}»
-		«ENDFOR»
+			«var actionBlock = behaviorTransition.actionBlock»
+			«FOR actionElement : actionBlock.children»
+				«switch actionElement{
+					BehaviorActionSequence:'''
+						«actionElement.dealActionElement»
+					'''
+					PortSendAction:'''
+						«actionElement.dealActionElement.toString.clearspace»
+					'''
+					PortDequeueAction:'''
+						«actionElement.dealActionElement»
+					'''
+					AssignmentAction:'''
+						«actionElement.dealActionElement»
+					'''
+					default:null
+				}»
+			«ENDFOR»
+			«IF actionBlock.timeout !== null»
+				delay «dealActionTimeOut(actionBlock.timeout).toString.clearspace»;
+			«ENDIF»
 		«ENDIF»
 	'''
+	def static dealActionTimeOut(BehaviorTime behaviorTime){
+		var float base
+		switch behaviorTime.unit.name{
+			case "ms":base=0.001f
+			default :base=1
+		}
+		switch behaviorTime.integerValue{
+			BehaviorIntegerLiteral:'''
+				«(Integer.parseInt(dealBehaviorIntegerLiteral(behaviorTime.integerValue as BehaviorIntegerLiteral).toString.clearspace)*base).toString»
+			'''
+		}
+	}
 	def static dealActionElement(BehaviorActionSequence behaviorActionSequence)'''
 		«FOR action : behaviorActionSequence.actions»
 			«switch action{
@@ -203,10 +219,10 @@ class AnnexSubclauseTemplateAda {
 					«dealDataComponentReference(firstValue as DataComponentReference).toString.clearspace»
 				'''
 				BehaviorIntegerLiteral:'''
-					«dealBehaivorIntegerLiteral(firstValue as BehaviorIntegerLiteral)»
+					«dealBehaviorIntegerLiteral(firstValue as BehaviorIntegerLiteral)»
 				'''
 				BehaviorRealLiteral:'''
-					«dealBehaivorRealLiteral(firstValue as BehaviorRealLiteral)»
+					«dealBehaviorRealLiteral(firstValue as BehaviorRealLiteral)»
 				'''
 				BehaviorBooleanLiteral:'''
 					«dealBehaviorBooleanLiteral(firstValue as BehaviorBooleanLiteral)»
@@ -225,10 +241,10 @@ class AnnexSubclauseTemplateAda {
 						«dealDataComponentReference(secondValue as DataComponentReference).toString.clearspace»
 					'''
 					BehaviorIntegerLiteral:'''
-						«dealBehaivorIntegerLiteral(secondValue as BehaviorIntegerLiteral)»
+						«dealBehaviorIntegerLiteral(secondValue as BehaviorIntegerLiteral)»
 					'''
 					BehaviorRealLiteral:'''
-						«dealBehaivorRealLiteral(secondValue as BehaviorRealLiteral)»
+						«dealBehaviorRealLiteral(secondValue as BehaviorRealLiteral)»
 					'''
 					BehaviorBooleanLiteral:'''
 						«dealBehaviorBooleanLiteral(secondValue as BehaviorBooleanLiteral)»
@@ -252,10 +268,10 @@ class AnnexSubclauseTemplateAda {
 		«ENDFOR»
 		«dataComponentReference.data.get(dataComponentReference.data.size-1).element.name»
 	'''
-	def static dealBehaivorIntegerLiteral(BehaviorIntegerLiteral behaviorIntegerLiteral)'''
+	def static dealBehaviorIntegerLiteral(BehaviorIntegerLiteral behaviorIntegerLiteral)'''
 		«behaviorIntegerLiteral.value»
 	'''
-	def static dealBehaivorRealLiteral(BehaviorRealLiteral behaviorRealLiteral)'''
+	def static dealBehaviorRealLiteral(BehaviorRealLiteral behaviorRealLiteral)'''
 		«behaviorRealLiteral.value»
 	'''
 	def static dealBehaviorBooleanLiteral(BehaviorBooleanLiteral behaviorBooleanLiteral)'''

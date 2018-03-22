@@ -35,36 +35,22 @@ public class GenerateAda {
    * @param systemFolder 此系统目录名
    */
   public static void generateSystem(final String parentFolderPath, final SystemImplementation system, final String systemFolder) {
-    String currentFolder = null;
+    String currentFolder = "system_";
     boolean _equals = Objects.equal(systemFolder, null);
     if (_equals) {
-      currentFolder = StringUtils.convert(system.getName());
+      String _currentFolder = currentFolder;
+      String _convert = StringUtils.convert(system.getName());
+      currentFolder = (_currentFolder + _convert);
     } else {
-      currentFolder = StringUtils.convert(systemFolder);
+      String _currentFolder_1 = currentFolder;
+      String _convert_1 = StringUtils.convert(systemFolder);
+      currentFolder = (_currentFolder_1 + _convert_1);
     }
     String currentFolderPath = ((parentFolderPath + "/") + currentFolder);
     Tools.folder(currentFolderPath);
-    int _size = system.getAllFeatures().size();
+    int _size = system.getOwnedSystemSubcomponents().size();
     boolean _greaterThan = (_size > 0);
     if (_greaterThan) {
-      FeatureTemplateAda.genSystemFeature(currentFolderPath, currentFolder, system.getAllFeatures());
-    }
-    int _size_1 = system.getOwnedDataSubcomponents().size();
-    boolean _greaterThan_1 = (_size_1 > 0);
-    if (_greaterThan_1) {
-      DataTemplateAda.genSystemDataSubcomponent(currentFolderPath, currentFolder, system.getOwnedDataSubcomponents());
-    }
-    int _size_2 = system.getOwnedProcessSubcomponents().size();
-    boolean _greaterThan_2 = (_size_2 > 0);
-    if (_greaterThan_2) {
-      EList<ProcessSubcomponent> _ownedProcessSubcomponents = system.getOwnedProcessSubcomponents();
-      for (final ProcessSubcomponent processsubcomponent : _ownedProcessSubcomponents) {
-        ProcessTemplateAda.genSystemProcessSubcomponent(currentFolderPath, processsubcomponent);
-      }
-    }
-    int _size_3 = system.getOwnedSystemSubcomponents().size();
-    boolean _greaterThan_3 = (_size_3 > 0);
-    if (_greaterThan_3) {
       EList<SystemSubcomponent> _ownedSystemSubcomponents = system.getOwnedSystemSubcomponents();
       for (final SystemSubcomponent systemsubcomponent : _ownedSystemSubcomponents) {
         {
@@ -72,6 +58,24 @@ public class GenerateAda {
           SystemImplementation systemImplementation = ((SystemImplementation) _systemSubcomponentType);
           GenerateAda.generateSystem(currentFolderPath, systemImplementation, systemsubcomponent.getName());
         }
+      }
+    }
+    int _size_1 = system.getAllFeatures().size();
+    boolean _greaterThan_1 = (_size_1 > 0);
+    if (_greaterThan_1) {
+      FeatureTemplateAda.genSystemFeature(currentFolderPath, currentFolder, system.getAllFeatures());
+    }
+    int _size_2 = system.getOwnedDataSubcomponents().size();
+    boolean _greaterThan_2 = (_size_2 > 0);
+    if (_greaterThan_2) {
+      DataTemplateAda.genSystemDataSubcomponent(currentFolderPath, currentFolder, system.getOwnedDataSubcomponents());
+    }
+    int _size_3 = system.getOwnedProcessSubcomponents().size();
+    boolean _greaterThan_3 = (_size_3 > 0);
+    if (_greaterThan_3) {
+      EList<ProcessSubcomponent> _ownedProcessSubcomponents = system.getOwnedProcessSubcomponents();
+      for (final ProcessSubcomponent processsubcomponent : _ownedProcessSubcomponents) {
+        ProcessTemplateAda.genSystemProcessSubcomponent(currentFolderPath, processsubcomponent);
       }
     }
   }
