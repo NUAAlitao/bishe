@@ -20,6 +20,9 @@ import org.osate.aadl2.ProcessSubcomponent
 import org.osate.aadl2.SystemSubcomponent
 import org.osate.aadl2.DataSubcomponent
 import org.osate.aadl2.Mode
+import org.osate.aadl2.PublicPackageSection
+import org.osate.aadl2.ModelUnit
+import org.osate.aadl2.AadlPackage
 
 class GenerateAda {
 	var static adaFolder = "Ada_codes"
@@ -29,6 +32,14 @@ class GenerateAda {
 			TemplateAda.packageName=Tools.getPackageName(system.eContainer.eContainer.toString)
 			TemplateAda.subprogramsFileName = TemplateAda.packageName+"_Subprograms"
 			generateSystem(adaFolder,system,system.name)
+			
+			var PublicPackageSection publicSection = system.eContainer as PublicPackageSection
+			for(ModelUnit modelUnit : publicSection.importedUnits){
+				switch modelUnit{
+					AadlPackage case modelUnit.name.equals("DataType"):
+						genDataType(adaFolder+"/system_"+system.name.convert, modelUnit)
+				}
+			}
 		}
 	}
 	/*

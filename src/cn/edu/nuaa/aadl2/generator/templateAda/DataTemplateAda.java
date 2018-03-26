@@ -2,12 +2,17 @@ package cn.edu.nuaa.aadl2.generator.templateAda;
 
 import cn.edu.nuaa.aadl2.generator.utils.StringUtils;
 import cn.edu.nuaa.aadl2.generator.utils.Tools;
+import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtend2.lib.StringConcatenation;
+import org.osate.aadl2.AadlPackage;
+import org.osate.aadl2.Classifier;
 import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.DataImplementation;
 import org.osate.aadl2.DataSubcomponent;
 import org.osate.aadl2.DataType;
+import org.osate.aadl2.PublicPackageSection;
 
 @SuppressWarnings("all")
 public class DataTemplateAda {
@@ -37,6 +42,100 @@ public class DataTemplateAda {
       }
     }
     return _builder;
+  }
+  
+  /**
+   * 处理publicSection中的所有数据实现类型
+   * @param folder 根目录路径
+   * @param aadlPackage aadl包
+   */
+  public static void genDataType(final String folder, final AadlPackage aadlPackage) {
+    ArrayList<DataImplementation> dataImpls = DataTemplateAda.getAllDataImplementation(aadlPackage.getPublicSection());
+    int _size = dataImpls.size();
+    boolean _greaterThan = (_size > 0);
+    if (_greaterThan) {
+      Tools.createFile(folder, "data_type.ads", DataTemplateAda.dealDataComponent(dataImpls).toString());
+    }
+  }
+  
+  /**
+   * 处理data implementation对象
+   * @param datas publicSection下的所有数据实现组件
+   */
+  public static CharSequence dealDataComponent(final List<DataImplementation> datas) {
+    StringConcatenation _builder = new StringConcatenation();
+    _builder.append("package data_type is");
+    _builder.newLine();
+    {
+      for(final DataImplementation data : datas) {
+        _builder.append("type ");
+        String _convertPoint = StringUtils.convertPoint(data.getName());
+        _builder.append(_convertPoint);
+        _builder.append(" is ");
+        _builder.newLineIfNotEmpty();
+        _builder.append("record");
+        _builder.newLine();
+        {
+          EList<DataSubcomponent> _ownedDataSubcomponents = data.getOwnedDataSubcomponents();
+          for(final DataSubcomponent subData : _ownedDataSubcomponents) {
+            String _name = subData.getName();
+            _builder.append(_name);
+            _builder.append(" : ");
+            String _clearspace = StringUtils.clearspace(DataTemplateAda.dealDataType(subData).toString());
+            _builder.append(_clearspace);
+            _builder.append(";");
+            _builder.newLineIfNotEmpty();
+          }
+        }
+        _builder.append("end record;");
+        _builder.newLine();
+        _builder.newLine();
+      }
+    }
+    _builder.append("end data_type;");
+    _builder.newLine();
+    return _builder;
+  }
+  
+  public static CharSequence dealDataType(final DataSubcomponent dataSubcomponent) {
+    CharSequence _xblockexpression = null;
+    {
+      ComponentClassifier data = dataSubcomponent.getClassifier();
+      CharSequence _switchResult = null;
+      String _name = data.getName();
+      if (_name != null) {
+        switch (_name) {
+          case "Float":
+            StringConcatenation _builder = new StringConcatenation();
+            _builder.append("Float");
+            _switchResult = _builder;
+            break;
+          case "Integer":
+            StringConcatenation _builder_1 = new StringConcatenation();
+            _builder_1.append("Integer");
+            _switchResult = _builder_1;
+            break;
+        }
+      }
+      _xblockexpression = _switchResult;
+    }
+    return _xblockexpression;
+  }
+  
+  /**
+   * 获得publicSection下的所有Data Implementation对象
+   * @param publicSection
+   * @return List<Classifier>
+   */
+  public static ArrayList<DataImplementation> getAllDataImplementation(final PublicPackageSection publicSection) {
+    ArrayList<DataImplementation> result = new ArrayList<DataImplementation>();
+    EList<Classifier> _ownedClassifiers = publicSection.getOwnedClassifiers();
+    for (final Classifier classifier : _ownedClassifiers) {
+      if ((classifier instanceof DataImplementation)) {
+        result.add(((DataImplementation)classifier));
+      }
+    }
+    return result;
   }
   
   public static CharSequence template(final DataSubcomponent subcomponent) {

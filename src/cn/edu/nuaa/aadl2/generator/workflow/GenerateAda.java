@@ -10,9 +10,13 @@ import cn.edu.nuaa.aadl2.generator.utils.Tools;
 import com.google.common.base.Objects;
 import java.util.List;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtend2.lib.StringConcatenation;
+import org.osate.aadl2.AadlPackage;
 import org.osate.aadl2.Mode;
+import org.osate.aadl2.ModelUnit;
 import org.osate.aadl2.ProcessSubcomponent;
+import org.osate.aadl2.PublicPackageSection;
 import org.osate.aadl2.Subcomponent;
 import org.osate.aadl2.SystemImplementation;
 import org.osate.aadl2.SystemSubcomponent;
@@ -30,6 +34,21 @@ public class GenerateAda {
       TemplateAda.packageName = Tools.getPackageName(system.eContainer().eContainer().toString());
       TemplateAda.subprogramsFileName = (TemplateAda.packageName + "_Subprograms");
       GenerateAda.generateSystem(GenerateAda.adaFolder, system, system.getName());
+      EObject _eContainer = system.eContainer();
+      PublicPackageSection publicSection = ((PublicPackageSection) _eContainer);
+      EList<ModelUnit> _importedUnits = publicSection.getImportedUnits();
+      for (final ModelUnit modelUnit : _importedUnits) {
+        boolean _matched = false;
+        if (modelUnit instanceof AadlPackage) {
+          boolean _equals = ((AadlPackage)modelUnit).getName().equals("DataType");
+          if (_equals) {
+            _matched=true;
+            String _convert = StringUtils.convert(system.getName());
+            String _plus = ((GenerateAda.adaFolder + "/system_") + _convert);
+            DataTemplateAda.genDataType(_plus, ((AadlPackage)modelUnit));
+          }
+        }
+      }
     }
   }
   
