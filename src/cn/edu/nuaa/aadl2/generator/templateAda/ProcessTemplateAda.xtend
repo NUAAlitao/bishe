@@ -25,21 +25,23 @@ class ProcessTemplateAda {
 		 * 处理系统实现下的进程子组件
 		 * @param parentFolder 系统实现目录路径
 		 * @param processSubcomponent 进程子组件
+		 * @param systemName 系统名称
 		 */
-		def static genSystemProcessSubcomponent(String parentFolder, ProcessSubcomponent processSubcomponent){
-				Tools.folder(parentFolder+"/process_"+processSubcomponent.name.toLowerCase.replace(".","_"))
-				Tools.createFile(parentFolder+"/process_"+processSubcomponent.name.toLowerCase.replace(".","_"),processSubcomponent.name.replace(".","_")+".adb",processSubcomponent.template.toString)
+		def static genSystemProcessSubcomponent(String parentFolder, ProcessSubcomponent processSubcomponent, String systemName){
+				Tools.folder(parentFolder+"/process_"+processSubcomponent.name.convert)
+				Tools.createFile(parentFolder+"/process_"+processSubcomponent.name.convert, 
+					systemName.convert+"-"+processSubcomponent.name.convert+".adb", 
+					processSubcomponent.template(systemName).toString)
 		}
 		
-		def static template(ProcessSubcomponent processSubcomponent){
+		def static template(ProcessSubcomponent processSubcomponent, String systemName){
 			var process=processSubcomponent.classifier
 			switch process{
 				ProcessType : '''
 				
 				'''
 				ProcessImplementation : '''
-				with «TemplateAda.packageName»_Subprograms; use «TemplateAda.packageName»_Subprograms;
-				with «TemplateAda.packageName»_types; use «TemplateAda.packageName»_types;
+				separate(«systemName.convert»)
 				
 				procedure «processSubcomponent.name.replace('.','_')» («IF process.allFeatures.size > 0»«process.allFeatures.genProcessFeature.toString.clearspace»«ENDIF») is
 					«IF process.ownedDataSubcomponents.size > 0»
@@ -75,7 +77,7 @@ class ProcessTemplateAda {
 					«IF process.ownedModes.size >0»
 						«dealProcessMode(process.ownedModes,process.allSubcomponents)»
 					«ENDIF»
-				end «processSubcomponent.name.replace('.','_')»;
+				end «processSubcomponent.name.convert»;
 				'''
 				}
 		}
@@ -92,8 +94,8 @@ class ProcessTemplateAda {
 				«FOR subcomponent : subcomponents»
 					«switch subcomponent{
 						ThreadSubcomponent:'''
-							«IF subcomponent.inModes.contains(mode)»
-								«subcomponent.name»_task.Start();
+							«IF subcomponent.inModes.contains(mode) || subcomponent.inModes.size === 0»
+								«subcomponent.name.convert»_task.Start();
 							«ENDIF»
 						'''
 					}»

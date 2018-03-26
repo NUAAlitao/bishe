@@ -6,11 +6,9 @@ import org.osate.aadl2.DataImplementation
 import java.util.List
 import cn.edu.nuaa.aadl2.generator.utils.Tools
 
+import static extension cn.edu.nuaa.aadl2.generator.utils.StringUtils.*
+
 class DataTemplateAda {
-	def static create(DataSubcomponent subcomponent)'''
-		«subcomponent.template»
-	'''
-	
 	/*
 	 * 处理系统实现下的数据子组件
 	 * @param folder 系统目录
@@ -18,7 +16,7 @@ class DataTemplateAda {
 	 * @param dataSubcomponents 数据子组件列表
 	 */
 	def static genSystemDataSubcomponent(String folder, String systemName, List<DataSubcomponent> dataSubcomponents){
-		Tools.createFile(folder,systemName+"_data.ads",systemDataSubcomponent(systemName,dataSubcomponents).toString)
+		Tools.createFile(folder,systemName.convert+"_data.ads",systemDataSubcomponent(systemName,dataSubcomponents).toString)
 	}
 	
 	/*
@@ -44,10 +42,10 @@ class DataTemplateAda {
 	}
 	
 	def static systemDataSubcomponent(String systemName, List<DataSubcomponent> dataSubcomponents)'''
-		packege «systemName»_data is
+		packege «systemName.convert»_data is
 			«FOR DataSubcomponent dataSubcomponent : dataSubcomponents»
 				«dataSubcomponent.template»
 			«ENDFOR»
-		end «systemName»_data;
+		end «systemName.convert»_data;
 	'''
 }

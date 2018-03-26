@@ -4,7 +4,6 @@ import cn.edu.nuaa.aadl2.generator.templateAda.AnnexSubclauseTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.DataTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.FeatureTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.ModeTemplateAda;
-import cn.edu.nuaa.aadl2.generator.templateAda.TemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.ThreadTemplateAda;
 import cn.edu.nuaa.aadl2.generator.utils.StringUtils;
 import cn.edu.nuaa.aadl2.generator.utils.Tools;
@@ -27,19 +26,24 @@ public class ProcessTemplateAda {
    * 处理系统实现下的进程子组件
    * @param parentFolder 系统实现目录路径
    * @param processSubcomponent 进程子组件
+   * @param systemName 系统名称
    */
-  public static void genSystemProcessSubcomponent(final String parentFolder, final ProcessSubcomponent processSubcomponent) {
-    String _replace = processSubcomponent.getName().toLowerCase().replace(".", "_");
-    String _plus = ((parentFolder + "/process_") + _replace);
+  public static void genSystemProcessSubcomponent(final String parentFolder, final ProcessSubcomponent processSubcomponent, final String systemName) {
+    String _convert = StringUtils.convert(processSubcomponent.getName());
+    String _plus = ((parentFolder + "/process_") + _convert);
     Tools.folder(_plus);
-    String _replace_1 = processSubcomponent.getName().toLowerCase().replace(".", "_");
-    String _plus_1 = ((parentFolder + "/process_") + _replace_1);
-    String _replace_2 = processSubcomponent.getName().replace(".", "_");
-    String _plus_2 = (_replace_2 + ".adb");
-    Tools.createFile(_plus_1, _plus_2, ProcessTemplateAda.template(processSubcomponent).toString());
+    String _convert_1 = StringUtils.convert(processSubcomponent.getName());
+    String _plus_1 = ((parentFolder + "/process_") + _convert_1);
+    String _convert_2 = StringUtils.convert(systemName);
+    String _plus_2 = (_convert_2 + "-");
+    String _convert_3 = StringUtils.convert(processSubcomponent.getName());
+    String _plus_3 = (_plus_2 + _convert_3);
+    String _plus_4 = (_plus_3 + ".adb");
+    Tools.createFile(_plus_1, _plus_4, 
+      ProcessTemplateAda.template(processSubcomponent, systemName).toString());
   }
   
-  public static CharSequence template(final ProcessSubcomponent processSubcomponent) {
+  public static CharSequence template(final ProcessSubcomponent processSubcomponent, final String systemName) {
     CharSequence _xblockexpression = null;
     {
       ComponentClassifier process = processSubcomponent.getClassifier();
@@ -56,17 +60,10 @@ public class ProcessTemplateAda {
         if (process instanceof ProcessImplementation) {
           _matched=true;
           StringConcatenation _builder = new StringConcatenation();
-          _builder.append("with ");
-          _builder.append(TemplateAda.packageName);
-          _builder.append("_Subprograms; use ");
-          _builder.append(TemplateAda.packageName);
-          _builder.append("_Subprograms;");
-          _builder.newLineIfNotEmpty();
-          _builder.append("with ");
-          _builder.append(TemplateAda.packageName);
-          _builder.append("_types; use ");
-          _builder.append(TemplateAda.packageName);
-          _builder.append("_types;");
+          _builder.append("separate(");
+          String _convert = StringUtils.convert(systemName);
+          _builder.append(_convert);
+          _builder.append(")");
           _builder.newLineIfNotEmpty();
           _builder.newLine();
           _builder.append("procedure ");
@@ -190,8 +187,8 @@ public class ProcessTemplateAda {
             }
           }
           _builder.append("end ");
-          String _replace_1 = processSubcomponent.getName().replace(".", "_");
-          _builder.append(_replace_1);
+          String _convert_1 = StringUtils.convert(processSubcomponent.getName());
+          _builder.append(_convert_1);
           _builder.append(";");
           _builder.newLineIfNotEmpty();
           _switchResult = _builder;
@@ -227,10 +224,9 @@ public class ProcessTemplateAda {
               _matched=true;
               StringConcatenation _builder_1 = new StringConcatenation();
               {
-                boolean _contains = ((ThreadSubcomponent)subcomponent).getInModes().contains(mode);
-                if (_contains) {
-                  String _name_1 = ((ThreadSubcomponent)subcomponent).getName();
-                  _builder_1.append(_name_1);
+                if ((((ThreadSubcomponent)subcomponent).getInModes().contains(mode) || (((ThreadSubcomponent)subcomponent).getInModes().size() == 0))) {
+                  String _convert = StringUtils.convert(((ThreadSubcomponent)subcomponent).getName());
+                  _builder_1.append(_convert);
                   _builder_1.append("_task.Start();");
                   _builder_1.newLineIfNotEmpty();
                 }

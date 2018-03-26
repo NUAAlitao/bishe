@@ -36,13 +36,13 @@ class ThreadTemplateAda {
 			ThreadType : '''
 			'''
 			ThreadImplementation : '''
-				task type «subcomponent.name.replace('.','_')»_task is
+				task type «subcomponent.name.convert»_task is
 					«IF subcomponent.inModes.size >0»
 					entry Start(«IF thread.allFeatures.size>0»«thread.allFeatures.genThreadFeature.toString.clearspace»«ENDIF»);
 					«ELSEIF thread.allFeatures.size>0»
 					entry Start(«thread.allFeatures.genThreadFeature.toString.clearspace»);
 					«ENDIF»
-				end «subcomponent.name.replace(',','_')»_task;
+				end «subcomponent.name.convert»_task;
 			'''
 		}
 	}
@@ -55,7 +55,7 @@ class ThreadTemplateAda {
 			'''
 			ThreadImplementation : '''
 				
-				task body «subcomponent.name.convertPoint»_task is
+				task body «subcomponent.name.convert»_task is
 					«IF thread.ownedAnnexSubclauses.size >0»
 						«FOR AnnexSubclause annexSubclause : thread.ownedAnnexSubclauses»
 							«genBehaviorAnnexVarible(annexSubclause as DefaultAnnexSubclause)»
@@ -79,7 +79,7 @@ class ThreadTemplateAda {
 							«genBehaviorAnnexTransition(annexSubclause as DefaultAnnexSubclause)»
 						«ENDFOR»
 					«ENDIF»
-				end «subcomponent.name.replace('.','_')»_task;
+				end «subcomponent.name.convert»_task;
 				
 			'''
 		}

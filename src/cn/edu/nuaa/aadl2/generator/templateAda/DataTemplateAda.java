@@ -1,5 +1,6 @@
 package cn.edu.nuaa.aadl2.generator.templateAda;
 
+import cn.edu.nuaa.aadl2.generator.utils.StringUtils;
 import cn.edu.nuaa.aadl2.generator.utils.Tools;
 import java.util.List;
 import org.eclipse.xtend2.lib.StringConcatenation;
@@ -10,14 +11,6 @@ import org.osate.aadl2.DataType;
 
 @SuppressWarnings("all")
 public class DataTemplateAda {
-  public static CharSequence create(final DataSubcomponent subcomponent) {
-    StringConcatenation _builder = new StringConcatenation();
-    CharSequence _template = DataTemplateAda.template(subcomponent);
-    _builder.append(_template);
-    _builder.newLineIfNotEmpty();
-    return _builder;
-  }
-  
   /**
    * 处理系统实现下的数据子组件
    * @param folder 系统目录
@@ -25,7 +18,9 @@ public class DataTemplateAda {
    * @param dataSubcomponents 数据子组件列表
    */
   public static void genSystemDataSubcomponent(final String folder, final String systemName, final List<DataSubcomponent> dataSubcomponents) {
-    Tools.createFile(folder, (systemName + "_data.ads"), DataTemplateAda.systemDataSubcomponent(systemName, dataSubcomponents).toString());
+    String _convert = StringUtils.convert(systemName);
+    String _plus = (_convert + "_data.ads");
+    Tools.createFile(folder, _plus, DataTemplateAda.systemDataSubcomponent(systemName, dataSubcomponents).toString());
   }
   
   /**
@@ -84,7 +79,8 @@ public class DataTemplateAda {
   public static CharSequence systemDataSubcomponent(final String systemName, final List<DataSubcomponent> dataSubcomponents) {
     StringConcatenation _builder = new StringConcatenation();
     _builder.append("packege ");
-    _builder.append(systemName);
+    String _convert = StringUtils.convert(systemName);
+    _builder.append(_convert);
     _builder.append("_data is");
     _builder.newLineIfNotEmpty();
     {
@@ -96,7 +92,8 @@ public class DataTemplateAda {
       }
     }
     _builder.append("end ");
-    _builder.append(systemName);
+    String _convert_1 = StringUtils.convert(systemName);
+    _builder.append(_convert_1);
     _builder.append("_data;");
     _builder.newLineIfNotEmpty();
     return _builder;

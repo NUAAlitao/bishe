@@ -21,7 +21,9 @@ public class FeatureTemplateAda {
    * @param features 系统类型声明中的features列表
    */
   public static void genSystemFeature(final String folderPath, final String systemName, final List<Feature> features) {
-    Tools.createFile(folderPath, (systemName + "_feature.ads"), FeatureTemplateAda.systemFeature(systemName, features).toString());
+    String _convert = StringUtils.convert(systemName);
+    String _plus = (_convert + "_feature.ads");
+    Tools.createFile(folderPath, _plus, FeatureTemplateAda.systemFeature(systemName, features).toString());
   }
   
   /**
@@ -217,7 +219,8 @@ public class FeatureTemplateAda {
   public static CharSequence systemFeature(final String systemName, final List<Feature> features) {
     StringConcatenation _builder = new StringConcatenation();
     _builder.append("package ");
-    _builder.append(systemName);
+    String _convert = StringUtils.convert(systemName);
+    _builder.append(_convert);
     _builder.append("_feature is");
     _builder.newLineIfNotEmpty();
     {
@@ -239,7 +242,8 @@ public class FeatureTemplateAda {
       }
     }
     _builder.append("end ");
-    _builder.append(systemName);
+    String _convert_1 = StringUtils.convert(systemName);
+    _builder.append(_convert_1);
     _builder.append("_feature;");
     _builder.newLineIfNotEmpty();
     return _builder;

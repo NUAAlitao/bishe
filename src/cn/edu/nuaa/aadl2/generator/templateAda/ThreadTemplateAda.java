@@ -65,8 +65,8 @@ public class ThreadTemplateAda {
           _matched=true;
           StringConcatenation _builder = new StringConcatenation();
           _builder.append("task type ");
-          String _replace = subcomponent.getName().replace(".", "_");
-          _builder.append(_replace);
+          String _convert = StringUtils.convert(subcomponent.getName());
+          _builder.append(_convert);
           _builder.append("_task is");
           _builder.newLineIfNotEmpty();
           {
@@ -99,8 +99,8 @@ public class ThreadTemplateAda {
             }
           }
           _builder.append("end ");
-          String _replace_1 = subcomponent.getName().replace(",", "_");
-          _builder.append(_replace_1);
+          String _convert_1 = StringUtils.convert(subcomponent.getName());
+          _builder.append(_convert_1);
           _builder.append("_task;");
           _builder.newLineIfNotEmpty();
           _switchResult = _builder;
@@ -129,8 +129,8 @@ public class ThreadTemplateAda {
           StringConcatenation _builder = new StringConcatenation();
           _builder.newLine();
           _builder.append("task body ");
-          String _convertPoint = StringUtils.convertPoint(subcomponent.getName());
-          _builder.append(_convertPoint);
+          String _convert = StringUtils.convert(subcomponent.getName());
+          _builder.append(_convert);
           _builder.append("_task is");
           _builder.newLineIfNotEmpty();
           {
@@ -185,8 +185,8 @@ public class ThreadTemplateAda {
                   _builder.append("\t");
                   _builder.append(TemplateAda.packageName, "\t");
                   _builder.append("_");
-                  String _convertPoint_1 = StringUtils.convertPoint(Tools.getCalledSubprogramName(subprogramCall.getCalledSubprogram().toString()));
-                  _builder.append(_convertPoint_1, "\t");
+                  String _convertPoint = StringUtils.convertPoint(Tools.getCalledSubprogramName(subprogramCall.getCalledSubprogram().toString()));
+                  _builder.append(_convertPoint, "\t");
                   _builder.append(";");
                   _builder.newLineIfNotEmpty();
                 }
@@ -213,8 +213,8 @@ public class ThreadTemplateAda {
             }
           }
           _builder.append("end ");
-          String _replace = subcomponent.getName().replace(".", "_");
-          _builder.append(_replace);
+          String _convert_1 = StringUtils.convert(subcomponent.getName());
+          _builder.append(_convert_1);
           _builder.append("_task;");
           _builder.newLineIfNotEmpty();
           _builder.newLine();

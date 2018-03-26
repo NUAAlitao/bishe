@@ -19,7 +19,7 @@ class FeatureTemplateAda {
 	 * @param features 系统类型声明中的features列表
 	 */
 	def static genSystemFeature(String folderPath, String systemName, List<Feature> features){
-		Tools.createFile(folderPath,systemName+"_feature.ads",systemFeature(systemName,features).toString())
+		Tools.createFile(folderPath,systemName.convert+"_feature.ads",systemFeature(systemName,features).toString())
 	}
 	
 	/*
@@ -96,10 +96,10 @@ class FeatureTemplateAda {
 
 	
 	def static systemFeature(String systemName, List<Feature> features)'''
-		package «systemName»_feature is
+		package «systemName.convert»_feature is
 			«FOR Feature feature : features»
 				«feature.name» : «IF feature.classifier != null»«feature.classifier.name.convertPoint»«ENDIF»;
 			«ENDFOR»
-		end «systemName»_feature;
+		end «systemName.convert»_feature;
 	'''
 }
