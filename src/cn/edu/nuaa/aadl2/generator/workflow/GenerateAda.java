@@ -1,5 +1,6 @@
 package cn.edu.nuaa.aadl2.generator.workflow;
 
+import cn.edu.nuaa.aadl2.generator.templateAda.ConnectionTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.DataTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.FeatureTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.ModeTemplateAda;
@@ -13,6 +14,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.osate.aadl2.AadlPackage;
+import org.osate.aadl2.Connection;
 import org.osate.aadl2.Mode;
 import org.osate.aadl2.ModelUnit;
 import org.osate.aadl2.ProcessSubcomponent;
@@ -130,9 +132,19 @@ public class GenerateAda {
       }
     }
     {
-      int _size = system.getOwnedModes().size();
+      int _size = system.getOwnedConnections().size();
       boolean _greaterThan = (_size > 0);
       if (_greaterThan) {
+        _builder.append("\t");
+        CharSequence _genConnectionVar = ConnectionTemplateAda.genConnectionVar(system.getOwnedConnections());
+        _builder.append(_genConnectionVar, "\t");
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    {
+      int _size_1 = system.getOwnedModes().size();
+      boolean _greaterThan_1 = (_size_1 > 0);
+      if (_greaterThan_1) {
         _builder.append("\t");
         String _clearspace = StringUtils.clearspace(ModeTemplateAda.genMode(system.getOwnedModes()).toString());
         _builder.append(_clearspace, "\t");
@@ -145,9 +157,9 @@ public class GenerateAda {
     _builder.append("begin");
     _builder.newLine();
     {
-      int _size_1 = system.getOwnedModes().size();
-      boolean _greaterThan_1 = (_size_1 > 0);
-      if (_greaterThan_1) {
+      int _size_2 = system.getOwnedModes().size();
+      boolean _greaterThan_2 = (_size_2 > 0);
+      if (_greaterThan_2) {
         _builder.append("\t");
         String _clearspace_1 = StringUtils.clearspace(ModeTemplateAda.initMode(system.getOwnedModes()).toString());
         _builder.append(_clearspace_1, "\t");
@@ -155,9 +167,9 @@ public class GenerateAda {
       }
     }
     {
-      int _size_2 = system.getOwnedModeTransitions().size();
-      boolean _greaterThan_2 = (_size_2 > 0);
-      if (_greaterThan_2) {
+      int _size_3 = system.getOwnedModeTransitions().size();
+      boolean _greaterThan_3 = (_size_3 > 0);
+      if (_greaterThan_3) {
         _builder.append("\t");
         CharSequence _genModeTransition = ModeTemplateAda.genModeTransition(system.getOwnedModeTransitions());
         _builder.append(_genModeTransition, "\t");
@@ -165,12 +177,17 @@ public class GenerateAda {
       }
     }
     {
-      int _size_3 = system.getOwnedModes().size();
-      boolean _greaterThan_3 = (_size_3 > 0);
-      if (_greaterThan_3) {
+      int _size_4 = system.getOwnedModes().size();
+      boolean _greaterThan_4 = (_size_4 > 0);
+      if (_greaterThan_4) {
         _builder.append("\t");
-        CharSequence _dealSystemMode = GenerateAda.dealSystemMode(system.getOwnedModes(), system.getAllSubcomponents());
+        CharSequence _dealSystemMode = GenerateAda.dealSystemMode(system.getOwnedModes(), system.getAllSubcomponents(), system.getOwnedConnections());
         _builder.append(_dealSystemMode, "\t");
+        _builder.newLineIfNotEmpty();
+      } else {
+        _builder.append("\t");
+        CharSequence _dealProcedureCall = GenerateAda.dealProcedureCall(system.getAllSubcomponents(), system.getOwnedConnections());
+        _builder.append(_dealProcedureCall, "\t");
         _builder.newLineIfNotEmpty();
       }
     }
@@ -186,8 +203,9 @@ public class GenerateAda {
    * 根据系统所处的不同模式调用该模式下的进程子组件
    * @param modes 系统拥有的模式列表
    * @param subcomponents 系统的子组件列表
+   * @param connections 系统的连接列表
    */
-  public static CharSequence dealSystemMode(final List<Mode> modes, final List<Subcomponent> subcomponents) {
+  public static CharSequence dealSystemMode(final List<Mode> modes, final List<Subcomponent> subcomponents, final List<Connection> connections) {
     StringConcatenation _builder = new StringConcatenation();
     _builder.append("case surrent_mode is");
     _builder.newLine();
@@ -210,7 +228,10 @@ public class GenerateAda {
                 if ((((ProcessSubcomponent)subcomponent).getInModes().contains(mode) || (((ProcessSubcomponent)subcomponent).getInModes().size() == 0))) {
                   String _convert = StringUtils.convert(((ProcessSubcomponent)subcomponent).getName());
                   _builder_1.append(_convert);
-                  _builder_1.append(";");
+                  _builder_1.append("(");
+                  String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genConParam(connections, ((ProcessSubcomponent)subcomponent).getName()).toString()));
+                  _builder_1.append(_formatParam);
+                  _builder_1.append(");");
                   _builder_1.newLineIfNotEmpty();
                 }
               }
@@ -224,6 +245,36 @@ public class GenerateAda {
     }
     _builder.append("end case;");
     _builder.newLine();
+    return _builder;
+  }
+  
+  /**
+   * 当系统没有模式变换时调用进程子组件
+   * @param subcomponents 系统的子组件列表
+   * @param connections 系统的连接列表
+   */
+  public static CharSequence dealProcedureCall(final List<Subcomponent> subcomponents, final List<Connection> connections) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      for(final Subcomponent subcomponent : subcomponents) {
+        CharSequence _switchResult = null;
+        boolean _matched = false;
+        if (subcomponent instanceof ProcessSubcomponent) {
+          _matched=true;
+          StringConcatenation _builder_1 = new StringConcatenation();
+          String _convert = StringUtils.convert(((ProcessSubcomponent)subcomponent).getName());
+          _builder_1.append(_convert);
+          _builder_1.append("(");
+          String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genConParam(connections, ((ProcessSubcomponent)subcomponent).getName()).toString()));
+          _builder_1.append(_formatParam);
+          _builder_1.append(");");
+          _builder_1.newLineIfNotEmpty();
+          _switchResult = _builder_1;
+        }
+        _builder.append(_switchResult);
+        _builder.newLineIfNotEmpty();
+      }
+    }
     return _builder;
   }
 }

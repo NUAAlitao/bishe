@@ -1,13 +1,9 @@
 package cn.edu.nuaa.aadl2.generator.templateAda;
 
-import cn.edu.nuaa.aadl2.generator.templateAda.DataImplementationTemplateAda;
-import cn.edu.nuaa.aadl2.generator.templateAda.DataTypeTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.SubprogramImplementationTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.SubprogramTypeTemplateAda;
 import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.osate.aadl2.Classifier;
-import org.osate.aadl2.DataImplementation;
-import org.osate.aadl2.DataType;
 import org.osate.aadl2.SubprogramImplementation;
 import org.osate.aadl2.SubprogramType;
 import org.osate.aadl2.ThreadImplementation;
@@ -38,18 +34,6 @@ public class ClassifierTemplateAda {
       if (classifier instanceof ThreadImplementation) {
         _matched=true;
         _switchResult = InputOutput.<String>println("threadImplementation");
-      }
-    }
-    if (!_matched) {
-      if (classifier instanceof DataType) {
-        _matched=true;
-        _switchResult = DataTypeTemplateAda.create(((DataType) classifier));
-      }
-    }
-    if (!_matched) {
-      if (classifier instanceof DataImplementation) {
-        _matched=true;
-        _switchResult = DataImplementationTemplateAda.create(((DataImplementation) classifier));
       }
     }
     if (!_matched) {

@@ -98,7 +98,7 @@ class FeatureTemplateAda {
 	def static systemFeature(String systemName, List<Feature> features)'''
 		package «systemName.convert»_feature is
 			«FOR Feature feature : features»
-				«feature.name» : «IF feature.classifier != null»«feature.classifier.name.convertPoint»«ENDIF»;
+				«feature.name» : «IF feature.classifier !== null»«feature.classifier.name.convertPoint»«ENDIF»;
 			«ENDFOR»
 		end «systemName.convert»_feature;
 	'''

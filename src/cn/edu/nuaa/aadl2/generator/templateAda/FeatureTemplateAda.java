@@ -2,7 +2,6 @@ package cn.edu.nuaa.aadl2.generator.templateAda;
 
 import cn.edu.nuaa.aadl2.generator.utils.StringUtils;
 import cn.edu.nuaa.aadl2.generator.utils.Tools;
-import com.google.common.base.Objects;
 import java.util.List;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.osate.aadl2.Classifier;
@@ -231,8 +230,8 @@ public class FeatureTemplateAda {
         _builder.append(" : ");
         {
           Classifier _classifier = feature.getClassifier();
-          boolean _notEquals = (!Objects.equal(_classifier, null));
-          if (_notEquals) {
+          boolean _tripleNotEquals = (_classifier != null);
+          if (_tripleNotEquals) {
             String _convertPoint = StringUtils.convertPoint(feature.getClassifier().getName());
             _builder.append(_convertPoint, "\t");
           }

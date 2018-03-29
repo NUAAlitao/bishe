@@ -21,4 +21,11 @@ class StringUtils {
 	def static dealMultipleSpace(String str){
 		return str.replaceAll("\\s+"," ")
 	}
+	
+	def static formatParam(String str){
+		if(str.endsWith(",")){
+			return str.substring(0,str.length-1)
+		}
+		return str
+	}
 }

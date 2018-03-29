@@ -12,13 +12,14 @@ import static extension cn.edu.nuaa.aadl2.generator.templateAda.DataTemplateAda.
 import static extension cn.edu.nuaa.aadl2.generator.templateAda.AnnexSubclauseTemplateAda.*
 import static extension cn.edu.nuaa.aadl2.generator.templateAda.FeatureTemplateAda.*
 import static extension cn.edu.nuaa.aadl2.generator.templateAda.ModeTemplateAda.*
+import static extension cn.edu.nuaa.aadl2.generator.templateAda.ConnectionTemplateAda.*
 import static extension cn.edu.nuaa.aadl2.generator.utils.StringUtils.*
 
-import org.osate.aadl2.DataSubcomponent
 import org.osate.aadl2.AnnexSubclause
 import org.osate.aadl2.DefaultAnnexSubclause
 import java.util.List
 import org.osate.aadl2.Mode
+import org.osate.aadl2.Connection
 
 class ProcessTemplateAda {
 		/*
@@ -50,6 +51,9 @@ class ProcessTemplateAda {
 					«IF process.ownedThreadSubcomponents.size > 0»
 						«process.ownedThreadSubcomponents.genProcessThreadSubcomponent»
 					«ENDIF»
+					«IF process.ownedConnections.size > 0»
+						«process.ownedConnections.genConnectionVar»
+					«ENDIF»
 					«IF process.ownedAnnexSubclauses.size > 0»
 						«FOR AnnexSubclause annexSubclause : process.ownedAnnexSubclauses»
 							«genBehaviorAnnexVarible(annexSubclause as DefaultAnnexSubclause)»
@@ -75,7 +79,9 @@ class ProcessTemplateAda {
 						«process.ownedModeTransitions.genModeTransition»
 					«ENDIF»
 					«IF process.ownedModes.size >0»
-						«dealProcessMode(process.ownedModes,process.allSubcomponents)»
+						«dealProcessMode(process.ownedModes,process.allSubcomponents,process.ownedConnections)»
+					«ELSE»
+						«dealTaskCall(process.allSubcomponents,process.ownedConnections)»
 					«ENDIF»
 				end «processSubcomponent.name.convert»;
 				'''
@@ -86,16 +92,17 @@ class ProcessTemplateAda {
 		 * 根据进程所处的不同模式调用该模式下的子组件
 		 * @param modes 进程拥有的模式列表
 		 * @param subcomponents 进程的子组件列表
+		 * @param connections 进程的连接列表
 		 */
-		def static dealProcessMode(List<Mode> modes,List<Subcomponent> subcomponents)'''
+		def static dealProcessMode(List<Mode> modes,List<Subcomponent> subcomponents, List<Connection> connections)'''
 			case surrent_mode is
 			«FOR mode : modes»
 			when «mode.name» =>
 				«FOR subcomponent : subcomponents»
 					«switch subcomponent{
 						ThreadSubcomponent:'''
-							«IF subcomponent.inModes.contains(mode) || subcomponent.inModes.size === 0»
-								«subcomponent.name.convert»_task.Start();
+							«IF subcomponent.inModes.contains(mode) || (subcomponent.inModes.size ===0 && subcomponent.allFeatures.size > 0)»
+								«subcomponent.name.convert»_task.Start(«genConParam(connections,subcomponent.name).toString.clearspace.formatParam»);
 							«ENDIF»
 						'''
 					}»
@@ -103,6 +110,21 @@ class ProcessTemplateAda {
 			«ENDFOR»
 			end case;
 		'''
-		
+		/*
+		 * 当进程没有模式变换时调用进程下的子组件
+		 * @param subcomponents 进程的子组件列表
+		 * @param connections 进程的连接列表
+		 */
+		def static dealTaskCall(List<Subcomponent> subcomponents, List<Connection> connections)'''
+			«FOR subcomponent : subcomponents»
+				«switch subcomponent{
+					ThreadSubcomponent:'''
+						«IF subcomponent.allFeatures.size>0»
+							«subcomponent.name.convert»_task.Start(«genConParam(connections,subcomponent.name).toString.clearspace.formatParam»);
+						«ENDIF»
+					'''
+				}»
+			«ENDFOR»
+		'''
 		
 }

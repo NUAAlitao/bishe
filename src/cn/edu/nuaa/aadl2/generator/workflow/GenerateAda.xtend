@@ -8,6 +8,7 @@ import static extension cn.edu.nuaa.aadl2.generator.templateAda.ProcessTemplateA
 import static extension cn.edu.nuaa.aadl2.generator.templateAda.DataTemplateAda.*
 import static extension cn.edu.nuaa.aadl2.generator.templateAda.FeatureTemplateAda.*
 import static extension cn.edu.nuaa.aadl2.generator.templateAda.ModeTemplateAda.*
+import static extension cn.edu.nuaa.aadl2.generator.templateAda.ConnectionTemplateAda.*
 
 import org.osate.aadl2.Subcomponent
 import cn.edu.nuaa.aadl2.generator.templateAda.TemplateAda
@@ -23,6 +24,8 @@ import org.osate.aadl2.Mode
 import org.osate.aadl2.PublicPackageSection
 import org.osate.aadl2.ModelUnit
 import org.osate.aadl2.AadlPackage
+import org.osate.aadl2.Connection
+import org.osate.aadl2.ProcessorSubcomponent
 
 class GenerateAda {
 	var static adaFolder = "Ada_codes"
@@ -64,7 +67,6 @@ class GenerateAda {
 				generateSystem(currentFolderPath,systemImplementation, systemsubcomponent.name)
 			}
 		}
-		
 		Tools.createFile(currentFolderPath, systemName.convert+".adb", genSystemProcedure(system,systemName).toString)
 		
 		if(system.allFeatures.size > 0){
@@ -89,6 +91,9 @@ class GenerateAda {
 			«FOR processSubcomponent : system.ownedProcessSubcomponents»
 				procedure «processSubcomponent.name.convert» is separate;
 			«ENDFOR»
+			«IF system.ownedConnections.size > 0»
+				«system.ownedConnections.genConnectionVar»
+			«ENDIF»
 			«IF system.ownedModes.size > 0»
 				«system.ownedModes.genMode.toString.clearspace»
 				current_mode : Modes;
@@ -101,7 +106,9 @@ class GenerateAda {
 				«system.ownedModeTransitions.genModeTransition»
 			«ENDIF»
 			«IF system.ownedModes.size > 0»
-				«dealSystemMode(system.ownedModes, system.allSubcomponents)»
+				«dealSystemMode(system.ownedModes, system.allSubcomponents, system.ownedConnections)»
+			«ELSE»
+				«dealProcedureCall(system.allSubcomponents, system.ownedConnections)»
 			«ENDIF»
 		end «systemName.convert»;
 	'''
@@ -109,8 +116,9 @@ class GenerateAda {
 	 * 根据系统所处的不同模式调用该模式下的进程子组件
 	 * @param modes 系统拥有的模式列表
 	 * @param subcomponents 系统的子组件列表
+	 * @param connections 系统的连接列表
 	 */
-	def static dealSystemMode(List<Mode> modes,List<Subcomponent> subcomponents)'''
+	def static dealSystemMode(List<Mode> modes,List<Subcomponent> subcomponents,List<Connection> connections)'''
 		case surrent_mode is
 		«FOR mode : modes»
 		when «mode.name» =>
@@ -118,12 +126,26 @@ class GenerateAda {
 				«switch subcomponent{
 					ProcessSubcomponent:'''
 						«IF subcomponent.inModes.contains(mode) || subcomponent.inModes.size === 0»
-							«subcomponent.name.convert»;
+							«subcomponent.name.convert»(«genConParam(connections,subcomponent.name).toString.clearspace.formatParam»);
 						«ENDIF»
 					'''
 				}»
 			«ENDFOR»
 		«ENDFOR»
 		end case;
+	'''
+	/*
+	 * 当系统没有模式变换时调用进程子组件
+	 * @param subcomponents 系统的子组件列表
+	 * @param connections 系统的连接列表
+	 */
+	def static dealProcedureCall(List<Subcomponent> subcomponents, List<Connection> connections)'''
+		«FOR subcomponent : subcomponents»
+			«switch subcomponent{
+				ProcessSubcomponent:'''
+					«subcomponent.name.convert»(«genConParam(connections,subcomponent.name).toString.clearspace.formatParam»);
+				'''
+			}»
+		«ENDFOR»
 	'''
 }

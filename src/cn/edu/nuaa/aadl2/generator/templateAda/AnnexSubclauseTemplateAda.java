@@ -589,6 +589,16 @@ public class AnnexSubclauseTemplateAda {
           }
         }
         if (!_matched) {
+          if (firstValue instanceof EventDataPortHolder) {
+            _matched=true;
+            StringConcatenation _builder_1 = new StringConcatenation();
+            CharSequence _dealEventDataPortHolder = AnnexSubclauseTemplateAda.dealEventDataPortHolder(((EventDataPortHolder) firstValue));
+            _builder_1.append(_dealEventDataPortHolder);
+            _builder_1.newLineIfNotEmpty();
+            _switchResult = _builder_1;
+          }
+        }
+        if (!_matched) {
           if (firstValue instanceof ValueExpression) {
             _matched=true;
             StringConcatenation _builder_1 = new StringConcatenation();
@@ -661,6 +671,16 @@ public class AnnexSubclauseTemplateAda {
               }
             }
             if (!_matched_1) {
+              if (secondValue instanceof EventDataPortHolder) {
+                _matched_1=true;
+                StringConcatenation _builder_1 = new StringConcatenation();
+                CharSequence _dealEventDataPortHolder = AnnexSubclauseTemplateAda.dealEventDataPortHolder(((EventDataPortHolder) secondValue));
+                _builder_1.append(_dealEventDataPortHolder);
+                _builder_1.newLineIfNotEmpty();
+                _switchResult_1 = _builder_1;
+              }
+            }
+            if (!_matched_1) {
               if (secondValue instanceof ValueExpression) {
                 _matched_1=true;
                 StringConcatenation _builder_1 = new StringConcatenation();
@@ -688,6 +708,14 @@ public class AnnexSubclauseTemplateAda {
       }
     }
     return _builder.toString();
+  }
+  
+  public static CharSequence dealEventDataPortHolder(final EventDataPortHolder eventDataPortHolder) {
+    StringConcatenation _builder = new StringConcatenation();
+    String _name = eventDataPortHolder.getElement().getName();
+    _builder.append(_name);
+    _builder.newLineIfNotEmpty();
+    return _builder;
   }
   
   public static CharSequence dealDataComponentReference(final DataComponentReference dataComponentReference) {

@@ -230,6 +230,9 @@ class AnnexSubclauseTemplateAda {
 				BehaviorVariableHolder:'''
 					«dealBehaviorVariableHolder(firstValue as BehaviorVariableHolder)»
 				'''
+				EventDataPortHolder:'''
+					«dealEventDataPortHolder(firstValue as EventDataPortHolder)»
+				'''
 				ValueExpression:'''
 					«dealValueExpression(firstValue as ValueExpression)»
 				'''
@@ -252,6 +255,9 @@ class AnnexSubclauseTemplateAda {
 					BehaviorVariableHolder:'''
 						«dealBehaviorVariableHolder(secondValue as BehaviorVariableHolder)»
 					'''
+					EventDataPortHolder:'''
+						«dealEventDataPortHolder(secondValue as EventDataPortHolder)»
+					'''
 					ValueExpression:'''
 						«dealValueExpression(secondValue as ValueExpression)»
 					'''
@@ -261,7 +267,9 @@ class AnnexSubclauseTemplateAda {
 			«ENDIF»
 		«ENDFOR»
 	'''
-	
+	def static dealEventDataPortHolder(EventDataPortHolder eventDataPortHolder)'''
+		«eventDataPortHolder.element.name»
+	'''
 	def static dealDataComponentReference(DataComponentReference dataComponentReference)'''
 		«FOR DataHolder dataHolder : dataComponentReference.data.subList(0,dataComponentReference.data.size-1)»
 			«dataHolder.element.name».

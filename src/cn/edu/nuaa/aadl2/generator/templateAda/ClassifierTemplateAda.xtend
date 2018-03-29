@@ -10,8 +10,6 @@ import org.osate.aadl2.DataImplementation
 
 import static  cn.edu.nuaa.aadl2.generator.templateAda.SubprogramImplementationTemplateAda.*
 import static  cn.edu.nuaa.aadl2.generator.templateAda.SubprogramTypeTemplateAda.*
-import static  cn.edu.nuaa.aadl2.generator.templateAda.DataTypeTemplateAda.*
-import static  cn.edu.nuaa.aadl2.generator.templateAda.DataImplementationTemplateAda.*
 
 
 class ClassifierTemplateAda {
@@ -25,10 +23,6 @@ class ClassifierTemplateAda {
 				println("threadtype")
 			ThreadImplementation:
 				println("threadImplementation")
-			DataType:
-				create(classifier as DataType)
-			DataImplementation:
-				create(classifier as DataImplementation)
 			
 			default:
 				null
