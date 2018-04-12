@@ -19,17 +19,6 @@ import org.osate.aadl2.ThreadType;
 
 @SuppressWarnings("all")
 public class ThreadTemplateAda {
-  public static CharSequence create(final ThreadSubcomponent subcomponent) {
-    StringConcatenation _builder = new StringConcatenation();
-    CharSequence _head = ThreadTemplateAda.head(subcomponent);
-    _builder.append(_head);
-    _builder.newLineIfNotEmpty();
-    CharSequence _template = ThreadTemplateAda.template(subcomponent);
-    _builder.append(_template);
-    _builder.newLineIfNotEmpty();
-    return _builder;
-  }
-  
   /**
    * 处理进程实现下的线程子组件
    * @param threadSubcomponents 线程子组件列表
@@ -79,8 +68,8 @@ public class ThreadTemplateAda {
                 int _size_1 = ((ThreadImplementation)thread).getAllFeatures().size();
                 boolean _greaterThan_1 = (_size_1 > 0);
                 if (_greaterThan_1) {
-                  String _clearspace = StringUtils.clearspace(FeatureTemplateAda.genThreadFeature(((ThreadImplementation)thread).getAllFeatures()).toString());
-                  _builder.append(_clearspace, "\t");
+                  String _formatParam = StringUtils.formatParam(StringUtils.clearspace(FeatureTemplateAda.genThreadInFeature(((ThreadImplementation)thread).getAllFeatures()).toString()));
+                  _builder.append(_formatParam, "\t");
                 }
               }
               _builder.append(");");
@@ -91,8 +80,8 @@ public class ThreadTemplateAda {
               if (_greaterThan_2) {
                 _builder.append("\t");
                 _builder.append("entry Start(");
-                String _clearspace_1 = StringUtils.clearspace(FeatureTemplateAda.genThreadFeature(((ThreadImplementation)thread).getAllFeatures()).toString());
-                _builder.append(_clearspace_1, "\t");
+                String _formatParam_1 = StringUtils.formatParam(StringUtils.clearspace(FeatureTemplateAda.genThreadInFeature(((ThreadImplementation)thread).getAllFeatures()).toString()));
+                _builder.append(_formatParam_1, "\t");
                 _builder.append(");");
                 _builder.newLineIfNotEmpty();
               }
@@ -134,9 +123,19 @@ public class ThreadTemplateAda {
           _builder.append("_task is");
           _builder.newLineIfNotEmpty();
           {
-            int _size = ((ThreadImplementation)thread).getOwnedAnnexSubclauses().size();
+            int _size = ((ThreadImplementation)thread).getAllFeatures().size();
             boolean _greaterThan = (_size > 0);
             if (_greaterThan) {
+              _builder.append("\t");
+              CharSequence _genThreadInPortVar = FeatureTemplateAda.genThreadInPortVar(((ThreadImplementation)thread).getAllFeatures());
+              _builder.append(_genThreadInPortVar, "\t");
+              _builder.newLineIfNotEmpty();
+            }
+          }
+          {
+            int _size_1 = ((ThreadImplementation)thread).getOwnedAnnexSubclauses().size();
+            boolean _greaterThan_1 = (_size_1 > 0);
+            if (_greaterThan_1) {
               {
                 EList<AnnexSubclause> _ownedAnnexSubclauses = ((ThreadImplementation)thread).getOwnedAnnexSubclauses();
                 for(final AnnexSubclause annexSubclause : _ownedAnnexSubclauses) {
@@ -162,14 +161,19 @@ public class ThreadTemplateAda {
               _builder.append("\t");
               _builder.append("accept Start(");
               {
-                int _size_1 = ((ThreadImplementation)thread).getAllFeatures().size();
-                boolean _greaterThan_1 = (_size_1 > 0);
-                if (_greaterThan_1) {
-                  String _clearspace = StringUtils.clearspace(FeatureTemplateAda.genThreadFeature(((ThreadImplementation)thread).getAllFeatures()).toString());
-                  _builder.append(_clearspace, "\t");
+                int _size_2 = ((ThreadImplementation)thread).getAllFeatures().size();
+                boolean _greaterThan_2 = (_size_2 > 0);
+                if (_greaterThan_2) {
+                  String _formatParam = StringUtils.formatParam(StringUtils.clearspace(FeatureTemplateAda.genThreadInFeature(((ThreadImplementation)thread).getAllFeatures()).toString()));
+                  _builder.append(_formatParam, "\t");
                 }
               }
               _builder.append(") do");
+              _builder.newLineIfNotEmpty();
+              _builder.append("\t");
+              _builder.append("\t");
+              CharSequence _initThreadInPortVar = FeatureTemplateAda.initThreadInPortVar(((ThreadImplementation)thread).getAllFeatures());
+              _builder.append(_initThreadInPortVar, "\t\t");
               _builder.newLineIfNotEmpty();
               _builder.append("\t");
               _builder.append("end Start;");
@@ -194,15 +198,15 @@ public class ThreadTemplateAda {
             }
           }
           {
-            int _size_2 = ((ThreadImplementation)thread).getOwnedAnnexSubclauses().size();
-            boolean _greaterThan_2 = (_size_2 > 0);
-            if (_greaterThan_2) {
+            int _size_3 = ((ThreadImplementation)thread).getOwnedAnnexSubclauses().size();
+            boolean _greaterThan_3 = (_size_3 > 0);
+            if (_greaterThan_3) {
               {
                 EList<AnnexSubclause> _ownedAnnexSubclauses_1 = ((ThreadImplementation)thread).getOwnedAnnexSubclauses();
                 for(final AnnexSubclause annexSubclause_1 : _ownedAnnexSubclauses_1) {
                   _builder.append("\t");
-                  String _clearspace_1 = StringUtils.clearspace(AnnexSubclauseTemplateAda.initBehaviorAnnexState(((DefaultAnnexSubclause) annexSubclause_1)).toString());
-                  _builder.append(_clearspace_1, "\t");
+                  String _clearspace = StringUtils.clearspace(AnnexSubclauseTemplateAda.initBehaviorAnnexState(((DefaultAnnexSubclause) annexSubclause_1)).toString());
+                  _builder.append(_clearspace, "\t");
                   _builder.newLineIfNotEmpty();
                   _builder.append("\t");
                   CharSequence _genBehaviorAnnexTransition = AnnexSubclauseTemplateAda.genBehaviorAnnexTransition(((DefaultAnnexSubclause) annexSubclause_1));
@@ -224,5 +228,23 @@ public class ThreadTemplateAda {
       _xblockexpression = _switchResult;
     }
     return _xblockexpression;
+  }
+  
+  /**
+   * 将线程类型声明中的out和 in out端口生成为进程中的变量
+   * @param threadSubcomponents 进程中所有线程子组件
+   */
+  public static CharSequence genThreadPortVar(final List<ThreadSubcomponent> threadSubcomponents) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      for(final ThreadSubcomponent threadSubcomponent : threadSubcomponents) {
+        ComponentClassifier thread = threadSubcomponent.getClassifier();
+        _builder.newLineIfNotEmpty();
+        CharSequence _genThreadFeatureVarInProc = FeatureTemplateAda.genThreadFeatureVarInProc(thread.getAllFeatures(), threadSubcomponent.getName());
+        _builder.append(_genThreadFeatureVarInProc);
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    return _builder;
   }
 }

@@ -76,8 +76,8 @@ public class ProcessTemplateAda {
             int _size = ((ProcessImplementation)process).getAllFeatures().size();
             boolean _greaterThan = (_size > 0);
             if (_greaterThan) {
-              String _clearspace = StringUtils.clearspace(FeatureTemplateAda.genProcessFeature(((ProcessImplementation)process).getAllFeatures()).toString());
-              _builder.append(_clearspace);
+              String _formatParam = StringUtils.formatParam(StringUtils.clearspace(FeatureTemplateAda.genProcessFeature(((ProcessImplementation)process).getAllFeatures()).toString()));
+              _builder.append(_formatParam);
             }
           }
           _builder.append(") is");
@@ -96,6 +96,10 @@ public class ProcessTemplateAda {
             int _size_2 = ((ProcessImplementation)process).getOwnedThreadSubcomponents().size();
             boolean _greaterThan_2 = (_size_2 > 0);
             if (_greaterThan_2) {
+              _builder.append("\t");
+              CharSequence _genThreadPortVar = ThreadTemplateAda.genThreadPortVar(((ProcessImplementation)process).getOwnedThreadSubcomponents());
+              _builder.append(_genThreadPortVar, "\t");
+              _builder.newLineIfNotEmpty();
               _builder.append("\t");
               CharSequence _genProcessThreadSubcomponent = ThreadTemplateAda.genProcessThreadSubcomponent(((ProcessImplementation)process).getOwnedThreadSubcomponents());
               _builder.append(_genProcessThreadSubcomponent, "\t");
@@ -139,8 +143,8 @@ public class ProcessTemplateAda {
             boolean _greaterThan_5 = (_size_5 > 0);
             if (_greaterThan_5) {
               _builder.append("\t");
-              String _clearspace_1 = StringUtils.clearspace(ModeTemplateAda.genMode(((ProcessImplementation)process).getOwnedModes()).toString());
-              _builder.append(_clearspace_1, "\t");
+              String _clearspace = StringUtils.clearspace(ModeTemplateAda.genMode(((ProcessImplementation)process).getOwnedModes()).toString());
+              _builder.append(_clearspace, "\t");
               _builder.newLineIfNotEmpty();
               _builder.append("\t");
               _builder.append("current_mode : Modes;");
@@ -157,8 +161,8 @@ public class ProcessTemplateAda {
                 EList<AnnexSubclause> _ownedAnnexSubclauses_1 = ((ProcessImplementation)process).getOwnedAnnexSubclauses();
                 for(final AnnexSubclause annexSubclause_1 : _ownedAnnexSubclauses_1) {
                   _builder.append("\t");
-                  String _clearspace_2 = StringUtils.clearspace(AnnexSubclauseTemplateAda.initBehaviorAnnexState(((DefaultAnnexSubclause) annexSubclause_1)).toString());
-                  _builder.append(_clearspace_2, "\t");
+                  String _clearspace_1 = StringUtils.clearspace(AnnexSubclauseTemplateAda.initBehaviorAnnexState(((DefaultAnnexSubclause) annexSubclause_1)).toString());
+                  _builder.append(_clearspace_1, "\t");
                   _builder.newLineIfNotEmpty();
                   _builder.append("\t");
                   CharSequence _genBehaviorAnnexTransition = AnnexSubclauseTemplateAda.genBehaviorAnnexTransition(((DefaultAnnexSubclause) annexSubclause_1));
@@ -173,8 +177,8 @@ public class ProcessTemplateAda {
             boolean _greaterThan_7 = (_size_7 > 0);
             if (_greaterThan_7) {
               _builder.append("\t");
-              String _clearspace_3 = StringUtils.clearspace(ModeTemplateAda.initMode(((ProcessImplementation)process).getOwnedModes()).toString());
-              _builder.append(_clearspace_3, "\t");
+              String _clearspace_2 = StringUtils.clearspace(ModeTemplateAda.initMode(((ProcessImplementation)process).getOwnedModes()).toString());
+              _builder.append(_clearspace_2, "\t");
               _builder.newLineIfNotEmpty();
             }
           }
@@ -246,7 +250,7 @@ public class ProcessTemplateAda {
                   String _convert = StringUtils.convert(((ThreadSubcomponent)subcomponent).getName());
                   _builder_1.append(_convert);
                   _builder_1.append("_task.Start(");
-                  String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genConParam(connections, ((ThreadSubcomponent)subcomponent).getName()).toString()));
+                  String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genConParam(connections, subcomponent).toString()));
                   _builder_1.append(_formatParam);
                   _builder_1.append(");");
                   _builder_1.newLineIfNotEmpty();
@@ -286,7 +290,7 @@ public class ProcessTemplateAda {
               String _convert = StringUtils.convert(((ThreadSubcomponent)subcomponent).getName());
               _builder_1.append(_convert);
               _builder_1.append("_task.Start(");
-              String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genConParam(connections, ((ThreadSubcomponent)subcomponent).getName()).toString()));
+              String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genConParam(connections, subcomponent).toString()));
               _builder_1.append(_formatParam);
               _builder_1.append(");");
               _builder_1.newLineIfNotEmpty();

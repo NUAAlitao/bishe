@@ -229,7 +229,7 @@ public class GenerateAda {
                   String _convert = StringUtils.convert(((ProcessSubcomponent)subcomponent).getName());
                   _builder_1.append(_convert);
                   _builder_1.append("(");
-                  String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genConParam(connections, ((ProcessSubcomponent)subcomponent).getName()).toString()));
+                  String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genConParam(connections, subcomponent).toString()));
                   _builder_1.append(_formatParam);
                   _builder_1.append(");");
                   _builder_1.newLineIfNotEmpty();
@@ -265,7 +265,7 @@ public class GenerateAda {
           String _convert = StringUtils.convert(((ProcessSubcomponent)subcomponent).getName());
           _builder_1.append(_convert);
           _builder_1.append("(");
-          String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genConParam(connections, ((ProcessSubcomponent)subcomponent).getName()).toString()));
+          String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genConParam(connections, subcomponent).toString()));
           _builder_1.append(_formatParam);
           _builder_1.append(");");
           _builder_1.newLineIfNotEmpty();

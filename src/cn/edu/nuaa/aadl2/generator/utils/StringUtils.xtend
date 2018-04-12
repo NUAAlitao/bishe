@@ -23,9 +23,17 @@ class StringUtils {
 	}
 	
 	def static formatParam(String str){
-		if(str.endsWith(",")){
-			return str.substring(0,str.length-1)
+		var String temp = str;
+		temp = temp.replaceAll("(; )+","; ")
+		if(temp.endsWith(",")){
+			temp = temp.substring(0,temp.length-1)
 		}
-		return str
+		if(temp.startsWith("; ")){
+			temp = temp.substring(2)
+		}
+		if(temp.endsWith("; ")){
+			temp = temp.substring(0,temp.length-2)
+		}
+		return temp
 	}
 }

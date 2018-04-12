@@ -13,6 +13,8 @@ import org.osate.aadl2.DataPort;
 import org.osate.aadl2.EventDataPort;
 import org.osate.aadl2.EventPort;
 import org.osate.aadl2.PortConnection;
+import org.osate.aadl2.Subcomponent;
+import org.osate.aadl2.ThreadSubcomponent;
 
 @SuppressWarnings("all")
 public class ConnectionTemplateAda {
@@ -56,17 +58,17 @@ public class ConnectionTemplateAda {
    * @param connections 当前组件下的所有连接
    * @param componentName 当前组件的名称
    */
-  public static CharSequence genConParam(final List<Connection> connections, final String componentName) {
+  public static CharSequence genConParam(final List<Connection> connections, final Subcomponent component) {
     StringConcatenation _builder = new StringConcatenation();
     {
       for(final Connection connection : connections) {
         {
           if (((connection.getSource().getContext() != null) && (connection.getDestination().getContext() != null))) {
-            String _clearspace = StringUtils.clearspace(ConnectionTemplateAda.dealConParamTwoContext(connection, componentName).toString());
+            String _clearspace = StringUtils.clearspace(ConnectionTemplateAda.dealConParamTwoContext(connection, component).toString());
             _builder.append(_clearspace);
             _builder.newLineIfNotEmpty();
           } else {
-            String _clearspace_1 = StringUtils.clearspace(ConnectionTemplateAda.dealConParamOneContext(connection, componentName).toString());
+            String _clearspace_1 = StringUtils.clearspace(ConnectionTemplateAda.dealConParamOneContext(connection, component).toString());
             _builder.append(_clearspace_1);
             _builder.newLineIfNotEmpty();
           }
@@ -81,32 +83,45 @@ public class ConnectionTemplateAda {
    * @param connection 连接对象
    * @param componentName 当前组件名称
    */
-  public static String dealConParamOneContext(final Connection connection, final String componentName) {
-    Context _context = connection.getSource().getContext();
-    boolean _tripleNotEquals = (_context != null);
-    if (_tripleNotEquals) {
-      boolean _equals = connection.getSource().getContext().getName().equals(componentName);
-      if (_equals) {
+  public static String dealConParamOneContext(final Connection connection, final Subcomponent component) {
+    if ((component instanceof ThreadSubcomponent)) {
+      if (((connection.getDestination().getContext() != null) && connection.getDestination().getContext().getName().equals(((ThreadSubcomponent)component).getName()))) {
         StringConcatenation _builder = new StringConcatenation();
-        String _name = connection.getSource().getConnectionEnd().getName();
+        String _name = connection.getDestination().getConnectionEnd().getName();
         _builder.append(_name);
         _builder.append("=>");
-        String _name_1 = connection.getDestination().getConnectionEnd().getName();
+        String _name_1 = connection.getSource().getConnectionEnd().getName();
         _builder.append(_name_1);
         _builder.append(",");
         return _builder.toString();
       }
     } else {
-      boolean _equals_1 = connection.getDestination().getContext().getName().equals(componentName);
-      if (_equals_1) {
-        StringConcatenation _builder_1 = new StringConcatenation();
-        String _name_2 = connection.getDestination().getConnectionEnd().getName();
-        _builder_1.append(_name_2);
-        _builder_1.append("=>");
-        String _name_3 = connection.getSource().getConnectionEnd().getName();
-        _builder_1.append(_name_3);
-        _builder_1.append(",");
-        return _builder_1.toString();
+      Context _context = connection.getSource().getContext();
+      boolean _tripleNotEquals = (_context != null);
+      if (_tripleNotEquals) {
+        boolean _equals = connection.getSource().getContext().getName().equals(component.getName());
+        if (_equals) {
+          StringConcatenation _builder_1 = new StringConcatenation();
+          String _name_2 = connection.getSource().getConnectionEnd().getName();
+          _builder_1.append(_name_2);
+          _builder_1.append("=>");
+          String _name_3 = connection.getDestination().getConnectionEnd().getName();
+          _builder_1.append(_name_3);
+          _builder_1.append(",");
+          return _builder_1.toString();
+        }
+      } else {
+        boolean _equals_1 = connection.getDestination().getContext().getName().equals(component.getName());
+        if (_equals_1) {
+          StringConcatenation _builder_2 = new StringConcatenation();
+          String _name_4 = connection.getDestination().getConnectionEnd().getName();
+          _builder_2.append(_name_4);
+          _builder_2.append("=>");
+          String _name_5 = connection.getSource().getConnectionEnd().getName();
+          _builder_2.append(_name_5);
+          _builder_2.append(",");
+          return _builder_2.toString();
+        }
       }
     }
     return "";
@@ -117,28 +132,42 @@ public class ConnectionTemplateAda {
    * @param connection 连接对象
    * @param componentName 当前组件名称
    */
-  public static String dealConParamTwoContext(final Connection connection, final String componentName) {
-    boolean _equals = connection.getSource().getContext().getName().equals(componentName);
-    if (_equals) {
-      StringConcatenation _builder = new StringConcatenation();
-      String _name = connection.getSource().getConnectionEnd().getName();
-      _builder.append(_name);
-      _builder.append("=>");
-      String _name_1 = connection.getName();
-      _builder.append(_name_1);
-      _builder.append(",");
-      return _builder.toString();
+  public static String dealConParamTwoContext(final Connection connection, final Subcomponent component) {
+    if ((component instanceof ThreadSubcomponent)) {
+      boolean _equals = connection.getDestination().getContext().getName().equals(((ThreadSubcomponent)component).getName());
+      if (_equals) {
+        StringConcatenation _builder = new StringConcatenation();
+        String _name = connection.getDestination().getConnectionEnd().getName();
+        _builder.append(_name);
+        _builder.append("=>");
+        String _name_1 = connection.getName();
+        _builder.append(_name_1);
+        _builder.append(",");
+        return _builder.toString();
+      }
     } else {
-      boolean _equals_1 = connection.getDestination().getContext().getName().equals(componentName);
+      boolean _equals_1 = connection.getSource().getContext().getName().equals(component.getName());
       if (_equals_1) {
         StringConcatenation _builder_1 = new StringConcatenation();
-        String _name_2 = connection.getDestination().getConnectionEnd().getName();
+        String _name_2 = connection.getSource().getConnectionEnd().getName();
         _builder_1.append(_name_2);
         _builder_1.append("=>");
         String _name_3 = connection.getName();
         _builder_1.append(_name_3);
         _builder_1.append(",");
         return _builder_1.toString();
+      } else {
+        boolean _equals_2 = connection.getDestination().getContext().getName().equals(component.getName());
+        if (_equals_2) {
+          StringConcatenation _builder_2 = new StringConcatenation();
+          String _name_4 = connection.getDestination().getConnectionEnd().getName();
+          _builder_2.append(_name_4);
+          _builder_2.append("=>");
+          String _name_5 = connection.getName();
+          _builder_2.append(_name_5);
+          _builder_2.append(",");
+          return _builder_2.toString();
+        }
       }
     }
     return "";

@@ -32,46 +32,366 @@ public class FeatureTemplateAda {
   public static CharSequence genProcessFeature(final List<Feature> features) {
     StringConcatenation _builder = new StringConcatenation();
     {
-      int _size = features.size();
-      int _minus = (_size - 1);
-      List<Feature> _subList = features.subList(0, _minus);
-      for(final Feature feature : _subList) {
+      for(final Feature feature : features) {
         CharSequence _dealFeature = FeatureTemplateAda.dealFeature(feature);
         _builder.append(_dealFeature);
         _builder.append("; ");
         _builder.newLineIfNotEmpty();
       }
     }
-    int _size_1 = features.size();
-    int _minus_1 = (_size_1 - 1);
-    CharSequence _dealFeature_1 = FeatureTemplateAda.dealFeature(features.get(_minus_1));
-    _builder.append(_dealFeature_1);
-    _builder.newLineIfNotEmpty();
     return _builder;
   }
   
   /**
-   * 处理线程类型声明中的features
+   * 处理线程类型声明中的输入端口，生成形参
    * @param features 线程类型声明中的features列表
    */
-  public static CharSequence genThreadFeature(final List<Feature> features) {
+  public static CharSequence genThreadInFeature(final List<Feature> features) {
     StringConcatenation _builder = new StringConcatenation();
     {
-      int _size = features.size();
-      int _minus = (_size - 1);
-      List<Feature> _subList = features.subList(0, _minus);
-      for(final Feature feature : _subList) {
-        CharSequence _dealFeature = FeatureTemplateAda.dealFeature(feature);
-        _builder.append(_dealFeature);
+      for(final Feature feature : features) {
+        CharSequence _dealThreadInFeature = FeatureTemplateAda.dealThreadInFeature(feature);
+        _builder.append(_dealThreadInFeature);
         _builder.append("; ");
         _builder.newLineIfNotEmpty();
       }
     }
-    int _size_1 = features.size();
-    int _minus_1 = (_size_1 - 1);
-    CharSequence _dealFeature_1 = FeatureTemplateAda.dealFeature(features.get(_minus_1));
-    _builder.append(_dealFeature_1);
+    return _builder;
+  }
+  
+  /**
+   * 将线程的out和in out端口生成为进程中的变量
+   * @param features 线程类型声明中的features列表
+   * @param threadName 线程名称
+   */
+  public static CharSequence genThreadFeatureVarInProc(final List<Feature> features, final String threadName) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      for(final Feature feature : features) {
+        CharSequence _switchResult = null;
+        boolean _matched = false;
+        if (feature instanceof DataPort) {
+          _matched=true;
+          StringConcatenation _builder_1 = new StringConcatenation();
+          {
+            boolean _isOut = ((DataPort)feature).isOut();
+            boolean _equals = (_isOut == true);
+            if (_equals) {
+              String _name = ((DataPort)feature).getName();
+              _builder_1.append(_name);
+              _builder_1.append("_");
+              _builder_1.append(threadName);
+              _builder_1.append(" : ");
+              String _clearspace = StringUtils.clearspace(FeatureTemplateAda.dealClassisfy(feature).toString());
+              _builder_1.append(_clearspace);
+              _builder_1.append(";");
+              _builder_1.newLineIfNotEmpty();
+            }
+          }
+          _switchResult = _builder_1;
+        }
+        if (!_matched) {
+          if (feature instanceof EventPort) {
+            _matched=true;
+            StringConcatenation _builder_1 = new StringConcatenation();
+            {
+              boolean _isOut = ((EventPort)feature).isOut();
+              boolean _equals = (_isOut == true);
+              if (_equals) {
+                String _name = ((EventPort)feature).getName();
+                _builder_1.append(_name);
+                _builder_1.append("_");
+                _builder_1.append(threadName);
+                _builder_1.append(" : ");
+                String _clearspace = StringUtils.clearspace(FeatureTemplateAda.dealClassisfy(feature).toString());
+                _builder_1.append(_clearspace);
+                _builder_1.append(";");
+                _builder_1.newLineIfNotEmpty();
+              }
+            }
+            _switchResult = _builder_1;
+          }
+        }
+        if (!_matched) {
+          if (feature instanceof EventDataPort) {
+            _matched=true;
+            StringConcatenation _builder_1 = new StringConcatenation();
+            {
+              boolean _isOut = ((EventDataPort)feature).isOut();
+              boolean _equals = (_isOut == true);
+              if (_equals) {
+                String _name = ((EventDataPort)feature).getName();
+                _builder_1.append(_name);
+                _builder_1.append("_");
+                _builder_1.append(threadName);
+                _builder_1.append(" : ");
+                String _clearspace = StringUtils.clearspace(FeatureTemplateAda.dealClassisfy(feature).toString());
+                _builder_1.append(_clearspace);
+                _builder_1.append(";");
+                _builder_1.newLineIfNotEmpty();
+              }
+            }
+            _switchResult = _builder_1;
+          }
+        }
+        _builder.append(_switchResult);
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    return _builder;
+  }
+  
+  /**
+   * 处理线程类型声明中的输入端口，生成线程内的局部变量
+   * @param features 线程类型声明中的features列表
+   */
+  public static CharSequence genThreadInPortVar(final List<Feature> features) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      for(final Feature feature : features) {
+        CharSequence _switchResult = null;
+        boolean _matched = false;
+        if (feature instanceof DataPort) {
+          _matched=true;
+          StringConcatenation _builder_1 = new StringConcatenation();
+          {
+            if (((((DataPort)feature).isIn() == true) && (((DataPort)feature).isOut() == false))) {
+              String _name = ((DataPort)feature).getName();
+              _builder_1.append(_name);
+              _builder_1.append(" : ");
+              String _clearspace = StringUtils.clearspace(FeatureTemplateAda.dealClassisfy(feature).toString());
+              _builder_1.append(_clearspace);
+              _builder_1.append(";");
+              _builder_1.newLineIfNotEmpty();
+            }
+          }
+          _switchResult = _builder_1;
+        }
+        if (!_matched) {
+          if (feature instanceof EventPort) {
+            _matched=true;
+            StringConcatenation _builder_1 = new StringConcatenation();
+            {
+              if (((((EventPort)feature).isIn() == true) && (((EventPort)feature).isOut() == false))) {
+                String _name = ((EventPort)feature).getName();
+                _builder_1.append(_name);
+                _builder_1.append(" : ");
+                String _clearspace = StringUtils.clearspace(FeatureTemplateAda.dealClassisfy(feature).toString());
+                _builder_1.append(_clearspace);
+                _builder_1.append(";");
+                _builder_1.newLineIfNotEmpty();
+              }
+            }
+            _switchResult = _builder_1;
+          }
+        }
+        if (!_matched) {
+          if (feature instanceof EventDataPort) {
+            _matched=true;
+            StringConcatenation _builder_1 = new StringConcatenation();
+            {
+              if (((((EventDataPort)feature).isIn() == true) && (((EventDataPort)feature).isOut() == false))) {
+                String _name = ((EventDataPort)feature).getName();
+                _builder_1.append(_name);
+                _builder_1.append(" : ");
+                String _clearspace = StringUtils.clearspace(FeatureTemplateAda.dealClassisfy(feature).toString());
+                _builder_1.append(_clearspace);
+                _builder_1.append(";");
+                _builder_1.newLineIfNotEmpty();
+              }
+            }
+            _switchResult = _builder_1;
+          }
+        }
+        if (!_matched) {
+          if (feature instanceof DataAccess) {
+            _matched=true;
+            StringConcatenation _builder_1 = new StringConcatenation();
+            String _name = ((DataAccess)feature).getName();
+            _builder_1.append(_name);
+            _builder_1.append(" : access ");
+            String _clearspace = StringUtils.clearspace(FeatureTemplateAda.dealClassisfy(feature).toString());
+            _builder_1.append(_clearspace);
+            _builder_1.append(";");
+            _builder_1.newLineIfNotEmpty();
+            _switchResult = _builder_1;
+          }
+        }
+        _builder.append(_switchResult);
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    return _builder;
+  }
+  
+  /**
+   * 在线程的entry函数中初始化输入端口生成的局部变量
+   * @param features 线程类型声明中的features列表
+   */
+  public static CharSequence initThreadInPortVar(final List<Feature> features) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      for(final Feature feature : features) {
+        CharSequence _switchResult = null;
+        boolean _matched = false;
+        if (feature instanceof DataPort) {
+          _matched=true;
+          StringConcatenation _builder_1 = new StringConcatenation();
+          {
+            if (((((DataPort)feature).isIn() == true) && (((DataPort)feature).isOut() == false))) {
+              String _name = ((DataPort)feature).getName();
+              _builder_1.append(_name);
+              _builder_1.append(" := ");
+              String _name_1 = ((DataPort)feature).getName();
+              _builder_1.append(_name_1);
+              _builder_1.append("_temp;");
+              _builder_1.newLineIfNotEmpty();
+            }
+          }
+          _switchResult = _builder_1;
+        }
+        if (!_matched) {
+          if (feature instanceof EventPort) {
+            _matched=true;
+            StringConcatenation _builder_1 = new StringConcatenation();
+            {
+              if (((((EventPort)feature).isIn() == true) && (((EventPort)feature).isOut() == false))) {
+                String _name = ((EventPort)feature).getName();
+                _builder_1.append(_name);
+                _builder_1.append(" := ");
+                String _name_1 = ((EventPort)feature).getName();
+                _builder_1.append(_name_1);
+                _builder_1.append("_temp;");
+                _builder_1.newLineIfNotEmpty();
+              }
+            }
+            _switchResult = _builder_1;
+          }
+        }
+        if (!_matched) {
+          if (feature instanceof EventDataPort) {
+            _matched=true;
+            StringConcatenation _builder_1 = new StringConcatenation();
+            {
+              if (((((EventDataPort)feature).isIn() == true) && (((EventDataPort)feature).isOut() == false))) {
+                String _name = ((EventDataPort)feature).getName();
+                _builder_1.append(_name);
+                _builder_1.append(" := ");
+                String _name_1 = ((EventDataPort)feature).getName();
+                _builder_1.append(_name_1);
+                _builder_1.append("_temp;");
+                _builder_1.newLineIfNotEmpty();
+              }
+            }
+            _switchResult = _builder_1;
+          }
+        }
+        if (!_matched) {
+          if (feature instanceof DataAccess) {
+            _matched=true;
+            StringConcatenation _builder_1 = new StringConcatenation();
+            String _name = ((DataAccess)feature).getName();
+            _builder_1.append(_name);
+            _builder_1.append(" := ");
+            String _name_1 = ((DataAccess)feature).getName();
+            _builder_1.append(_name_1);
+            _builder_1.append("_temp;");
+            _builder_1.newLineIfNotEmpty();
+            _switchResult = _builder_1;
+          }
+        }
+        _builder.append(_switchResult);
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    return _builder;
+  }
+  
+  public static CharSequence dealThreadInFeature(final Feature feature) {
+    StringConcatenation _builder = new StringConcatenation();
+    CharSequence _switchResult = null;
+    boolean _matched = false;
+    if (feature instanceof DataPort) {
+      _matched=true;
+      StringConcatenation _builder_1 = new StringConcatenation();
+      {
+        if (((((DataPort)feature).isIn() == true) && (((DataPort)feature).isOut() == false))) {
+          String _name = ((DataPort)feature).getName();
+          _builder_1.append(_name);
+          _builder_1.append("_temp : in ");
+          CharSequence _dealClassisfy = FeatureTemplateAda.dealClassisfy(feature);
+          _builder_1.append(_dealClassisfy);
+          _builder_1.newLineIfNotEmpty();
+        }
+      }
+      _switchResult = _builder_1;
+    }
+    if (!_matched) {
+      if (feature instanceof EventPort) {
+        _matched=true;
+        StringConcatenation _builder_1 = new StringConcatenation();
+        {
+          if (((((EventPort)feature).isIn() == true) && (((EventPort)feature).isOut() == false))) {
+            String _name = ((EventPort)feature).getName();
+            _builder_1.append(_name);
+            _builder_1.append("_temp : in ");
+            CharSequence _dealClassisfy = FeatureTemplateAda.dealClassisfy(feature);
+            _builder_1.append(_dealClassisfy);
+            _builder_1.newLineIfNotEmpty();
+          }
+        }
+        _switchResult = _builder_1;
+      }
+    }
+    if (!_matched) {
+      if (feature instanceof EventDataPort) {
+        _matched=true;
+        StringConcatenation _builder_1 = new StringConcatenation();
+        {
+          if (((((EventDataPort)feature).isIn() == true) && (((EventDataPort)feature).isOut() == false))) {
+            String _name = ((EventDataPort)feature).getName();
+            _builder_1.append(_name);
+            _builder_1.append("_temp : in ");
+            CharSequence _dealClassisfy = FeatureTemplateAda.dealClassisfy(feature);
+            _builder_1.append(_dealClassisfy);
+            _builder_1.newLineIfNotEmpty();
+          }
+        }
+        _switchResult = _builder_1;
+      }
+    }
+    if (!_matched) {
+      if (feature instanceof DataAccess) {
+        _matched=true;
+        StringConcatenation _builder_1 = new StringConcatenation();
+        String _name = ((DataAccess)feature).getName();
+        _builder_1.append(_name);
+        _builder_1.append("_temp : access ");
+        CharSequence _dealClassisfy = FeatureTemplateAda.dealClassisfy(feature);
+        _builder_1.append(_dealClassisfy);
+        _builder_1.newLineIfNotEmpty();
+        _switchResult = _builder_1;
+      }
+    }
+    _builder.append(_switchResult);
     _builder.newLineIfNotEmpty();
+    return _builder;
+  }
+  
+  public static CharSequence dealClassisfy(final Feature feature) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      Classifier _classifier = feature.getClassifier();
+      boolean _tripleNotEquals = (_classifier != null);
+      if (_tripleNotEquals) {
+        String _convertPoint = StringUtils.convertPoint(feature.getClassifier().getName());
+        _builder.append(_convertPoint);
+        _builder.newLineIfNotEmpty();
+      } else {
+        _builder.append("Boolean");
+        _builder.newLine();
+      }
+    }
     return _builder;
   }
   
@@ -133,7 +453,7 @@ public class FeatureTemplateAda {
         _builder.append(_convertPoint);
         _builder.newLineIfNotEmpty();
       } else {
-        _builder.append("boolen");
+        _builder.append("Boolean");
         _builder.newLine();
       }
     }
@@ -234,6 +554,8 @@ public class FeatureTemplateAda {
           if (_tripleNotEquals) {
             String _convertPoint = StringUtils.convertPoint(feature.getClassifier().getName());
             _builder.append(_convertPoint, "\t");
+          } else {
+            _builder.append("Boolean");
           }
         }
         _builder.append(";");

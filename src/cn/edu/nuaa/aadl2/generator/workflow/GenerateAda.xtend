@@ -126,7 +126,7 @@ class GenerateAda {
 				«switch subcomponent{
 					ProcessSubcomponent:'''
 						«IF subcomponent.inModes.contains(mode) || subcomponent.inModes.size === 0»
-							«subcomponent.name.convert»(«genConParam(connections,subcomponent.name).toString.clearspace.formatParam»);
+							«subcomponent.name.convert»(«genConParam(connections,subcomponent).toString.clearspace.formatParam»);
 						«ENDIF»
 					'''
 				}»
@@ -143,7 +143,7 @@ class GenerateAda {
 		«FOR subcomponent : subcomponents»
 			«switch subcomponent{
 				ProcessSubcomponent:'''
-					«subcomponent.name.convert»(«genConParam(connections,subcomponent.name).toString.clearspace.formatParam»);
+					«subcomponent.name.convert»(«genConParam(connections,subcomponent).toString.clearspace.formatParam»);
 				'''
 			}»
 		«ENDFOR»

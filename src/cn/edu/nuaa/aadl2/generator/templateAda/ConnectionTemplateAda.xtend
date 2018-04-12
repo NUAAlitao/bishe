@@ -11,6 +11,8 @@ import org.osate.aadl2.DataPort
 import org.osate.aadl2.DataAccess
 import org.osate.aadl2.EventPort
 import org.osate.aadl2.EventDataPort
+import org.osate.aadl2.Subcomponent
+import org.osate.aadl2.ThreadSubcomponent
 
 class ConnectionTemplateAda {
 	/*
@@ -34,12 +36,12 @@ class ConnectionTemplateAda {
 	 * @param connections 当前组件下的所有连接
 	 * @param componentName 当前组件的名称
 	 */
-	def static genConParam(List<Connection> connections, String componentName)'''
+	def static genConParam(List<Connection> connections, Subcomponent component)'''
 		«FOR connection : connections»
 			«IF connection.source.context !== null && connection.destination.context !== null»
-				«dealConParamTwoContext(connection,componentName).toString.clearspace»
+				«dealConParamTwoContext(connection,component).toString.clearspace»
 			«ELSE»
-				«dealConParamOneContext(connection,componentName).toString.clearspace»
+				«dealConParamOneContext(connection,component).toString.clearspace»
 			«ENDIF»
 		«ENDFOR»
 	'''
@@ -48,14 +50,20 @@ class ConnectionTemplateAda {
 	 * @param connection 连接对象
 	 * @param componentName 当前组件名称
 	 */
-	def static dealConParamOneContext(Connection connection, String componentName){
-		if(connection.source.context !== null){
-			if(connection.source.context.name.equals(componentName)){
-				return '''«connection.source.connectionEnd.name»=>«connection.destination.connectionEnd.name»,'''
+	def static dealConParamOneContext(Connection connection, Subcomponent component){
+		if(component instanceof ThreadSubcomponent){
+			if(connection.destination.context!==null && connection.destination.context.name.equals(component.name)){
+				return '''«connection.destination.connectionEnd.name»=>«connection.source.connectionEnd.name»,'''
 			}
 		}else{
-			if(connection.destination.context.name.equals(componentName)){
-				return '''«connection.destination.connectionEnd.name»=>«connection.source.connectionEnd.name»,'''
+			if(connection.source.context !== null){
+				if(connection.source.context.name.equals(component.name)){
+					return '''«connection.source.connectionEnd.name»=>«connection.destination.connectionEnd.name»,'''
+				}
+			}else{
+				if(connection.destination.context.name.equals(component.name)){
+					return '''«connection.destination.connectionEnd.name»=>«connection.source.connectionEnd.name»,'''
+				}
 			}
 		}
 		return ""
@@ -65,11 +73,17 @@ class ConnectionTemplateAda {
 	 * @param connection 连接对象
 	 * @param componentName 当前组件名称
 	 */
-	def static dealConParamTwoContext(Connection connection, String componentName){
-		if(connection.source.context.name.equals(componentName)){
-			return '''«connection.source.connectionEnd.name»=>«connection.name»,'''
-		}else if(connection.destination.context.name.equals(componentName)){
-			return '''«connection.destination.connectionEnd.name»=>«connection.name»,'''
+	def static dealConParamTwoContext(Connection connection, Subcomponent component){
+		if(component instanceof ThreadSubcomponent){
+			if(connection.destination.context.name.equals(component.name)){
+				return '''«connection.destination.connectionEnd.name»=>«connection.name»,'''
+			}
+		}else{
+			if(connection.source.context.name.equals(component.name)){
+				return '''«connection.source.connectionEnd.name»=>«connection.name»,'''
+			}else if(connection.destination.context.name.equals(component.name)){
+				return '''«connection.destination.connectionEnd.name»=>«connection.name»,'''
+			}
 		}
 		return ""
 	}

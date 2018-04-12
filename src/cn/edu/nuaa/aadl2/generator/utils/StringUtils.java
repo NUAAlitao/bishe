@@ -23,12 +23,24 @@ public class StringUtils {
   }
   
   public static String formatParam(final String str) {
-    boolean _endsWith = str.endsWith(",");
+    String temp = str;
+    temp = temp.replaceAll("(; )+", "; ");
+    boolean _endsWith = temp.endsWith(",");
     if (_endsWith) {
-      int _length = str.length();
+      int _length = temp.length();
       int _minus = (_length - 1);
-      return str.substring(0, _minus);
+      temp = temp.substring(0, _minus);
     }
-    return str;
+    boolean _startsWith = temp.startsWith("; ");
+    if (_startsWith) {
+      temp = temp.substring(2);
+    }
+    boolean _endsWith_1 = temp.endsWith("; ");
+    if (_endsWith_1) {
+      int _length_1 = temp.length();
+      int _minus_1 = (_length_1 - 2);
+      temp = temp.substring(0, _minus_1);
+    }
+    return temp;
   }
 }

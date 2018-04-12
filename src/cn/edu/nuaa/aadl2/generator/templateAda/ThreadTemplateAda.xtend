@@ -15,11 +15,6 @@ import org.osate.aadl2.AnnexSubclause
 import org.osate.aadl2.DefaultAnnexSubclause
 
 class ThreadTemplateAda {
-	def static create(ThreadSubcomponent subcomponent)'''
-		«subcomponent.head»
-		«subcomponent.template»
-	'''
-	
 	/*
 	 * 处理进程实现下的线程子组件
 	 * @param threadSubcomponents 线程子组件列表
@@ -30,6 +25,7 @@ class ThreadTemplateAda {
 			«threadSubcomponent.template»
 		«ENDFOR»
 	'''
+	
 	def static head(ThreadSubcomponent subcomponent){
 		var thread=subcomponent.classifier
 		switch thread{
@@ -38,9 +34,9 @@ class ThreadTemplateAda {
 			ThreadImplementation : '''
 				task type «subcomponent.name.convert»_task is
 					«IF subcomponent.inModes.size >0»
-					entry Start(«IF thread.allFeatures.size>0»«thread.allFeatures.genThreadFeature.toString.clearspace»«ENDIF»);
+					entry Start(«IF thread.allFeatures.size>0»«thread.allFeatures.genThreadInFeature.toString.clearspace.formatParam»«ENDIF»);
 					«ELSEIF thread.allFeatures.size>0»
-					entry Start(«thread.allFeatures.genThreadFeature.toString.clearspace»);
+					entry Start(«thread.allFeatures.genThreadInFeature.toString.clearspace.formatParam»);
 					«ENDIF»
 				end «subcomponent.name.convert»_task;
 			'''
@@ -56,6 +52,9 @@ class ThreadTemplateAda {
 			ThreadImplementation : '''
 				
 				task body «subcomponent.name.convert»_task is
+					«IF thread.allFeatures.size>0»
+						«thread.allFeatures.genThreadInPortVar»
+					«ENDIF»
 					«IF thread.ownedAnnexSubclauses.size >0»
 						«FOR AnnexSubclause annexSubclause : thread.ownedAnnexSubclauses»
 							«genBehaviorAnnexVarible(annexSubclause as DefaultAnnexSubclause)»
@@ -65,7 +64,8 @@ class ThreadTemplateAda {
 					«ENDIF»
 				begin
 					«IF subcomponent.inModes.size>0 || thread.allFeatures.size>0»
-					accept Start(«IF thread.allFeatures.size>0»«thread.allFeatures.genThreadFeature.toString.clearspace»«ENDIF») do
+					accept Start(«IF thread.allFeatures.size>0»«thread.allFeatures.genThreadInFeature.toString.clearspace.formatParam»«ENDIF») do
+						«thread.allFeatures.initThreadInPortVar»
 					end Start;
 					«ENDIF»
 					«FOR SubprogramCallSequence subprogramCallSequence : thread.ownedSubprogramCallSequences»
@@ -84,4 +84,15 @@ class ThreadTemplateAda {
 			'''
 		}
 	}
+	
+	/*
+	 * 将线程类型声明中的out和 in out端口生成为进程中的变量
+	 * @param threadSubcomponents 进程中所有线程子组件
+	 */
+	 def static genThreadPortVar(List<ThreadSubcomponent> threadSubcomponents)'''
+	 	«FOR threadSubcomponent : threadSubcomponents»
+	 		«var thread = threadSubcomponent.classifier»
+	 		«genThreadFeatureVarInProc(thread.allFeatures,threadSubcomponent.name)»
+	 	«ENDFOR»
+	 '''
 }

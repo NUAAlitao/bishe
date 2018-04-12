@@ -44,11 +44,12 @@ class ProcessTemplateAda {
 				ProcessImplementation : '''
 				separate(«systemName.convert»)
 				
-				procedure «processSubcomponent.name.replace('.','_')» («IF process.allFeatures.size > 0»«process.allFeatures.genProcessFeature.toString.clearspace»«ENDIF») is
+				procedure «processSubcomponent.name.replace('.','_')» («IF process.allFeatures.size > 0»«process.allFeatures.genProcessFeature.toString.clearspace.formatParam»«ENDIF») is
 					«IF process.ownedDataSubcomponents.size > 0»
 						«process.ownedDataSubcomponents.genProcessDataSubcomponent»
 					«ENDIF»
 					«IF process.ownedThreadSubcomponents.size > 0»
+						«process.ownedThreadSubcomponents.genThreadPortVar»
 						«process.ownedThreadSubcomponents.genProcessThreadSubcomponent»
 					«ENDIF»
 					«IF process.ownedConnections.size > 0»
@@ -102,7 +103,7 @@ class ProcessTemplateAda {
 					«switch subcomponent{
 						ThreadSubcomponent:'''
 							«IF subcomponent.inModes.contains(mode) || (subcomponent.inModes.size ===0 && subcomponent.allFeatures.size > 0)»
-								«subcomponent.name.convert»_task.Start(«genConParam(connections,subcomponent.name).toString.clearspace.formatParam»);
+								«subcomponent.name.convert»_task.Start(«genConParam(connections,subcomponent).toString.clearspace.formatParam»);
 							«ENDIF»
 						'''
 					}»
@@ -120,11 +121,10 @@ class ProcessTemplateAda {
 				«switch subcomponent{
 					ThreadSubcomponent:'''
 						«IF subcomponent.allFeatures.size>0»
-							«subcomponent.name.convert»_task.Start(«genConParam(connections,subcomponent.name).toString.clearspace.formatParam»);
+							«subcomponent.name.convert»_task.Start(«genConParam(connections,subcomponent).toString.clearspace.formatParam»);
 						«ENDIF»
 					'''
 				}»
 			«ENDFOR»
 		'''
-		
 }
