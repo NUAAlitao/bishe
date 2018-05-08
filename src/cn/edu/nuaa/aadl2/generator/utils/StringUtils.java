@@ -25,14 +25,18 @@ public class StringUtils {
   public static String formatParam(final String str) {
     String temp = str;
     temp = temp.replaceAll("(; )+", "; ");
-    boolean _endsWith = temp.endsWith(",");
+    boolean _endsWith = temp.endsWith(", ");
     if (_endsWith) {
       int _length = temp.length();
-      int _minus = (_length - 1);
+      int _minus = (_length - 2);
       temp = temp.substring(0, _minus);
     }
-    boolean _startsWith = temp.startsWith("; ");
+    boolean _startsWith = temp.startsWith(", ");
     if (_startsWith) {
+      temp = temp.substring(2);
+    }
+    boolean _startsWith_1 = temp.startsWith("; ");
+    if (_startsWith_1) {
       temp = temp.substring(2);
     }
     boolean _endsWith_1 = temp.endsWith("; ");

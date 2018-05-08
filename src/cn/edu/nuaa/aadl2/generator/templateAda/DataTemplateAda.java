@@ -177,7 +177,7 @@ public class DataTemplateAda {
   
   public static CharSequence systemDataSubcomponent(final String systemName, final List<DataSubcomponent> dataSubcomponents) {
     StringConcatenation _builder = new StringConcatenation();
-    _builder.append("packege ");
+    _builder.append("package ");
     String _convert = StringUtils.convert(systemName);
     _builder.append(_convert);
     _builder.append("_data is");

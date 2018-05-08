@@ -10,6 +10,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.osate.aadl2.AnnexSubclause;
 import org.osate.aadl2.ComponentClassifier;
+import org.osate.aadl2.Connection;
 import org.osate.aadl2.DefaultAnnexSubclause;
 import org.osate.aadl2.SubprogramCall;
 import org.osate.aadl2.SubprogramCallSequence;
@@ -22,12 +23,13 @@ public class ThreadTemplateAda {
   /**
    * 处理进程实现下的线程子组件
    * @param threadSubcomponents 线程子组件列表
+   * @param connections 进程中的connection列表
    */
-  public static CharSequence genProcessThreadSubcomponent(final List<ThreadSubcomponent> threadSubcomponents) {
+  public static CharSequence genProcessThreadSubcomponent(final List<ThreadSubcomponent> threadSubcomponents, final List<Connection> connections) {
     StringConcatenation _builder = new StringConcatenation();
     {
       for(final ThreadSubcomponent threadSubcomponent : threadSubcomponents) {
-        CharSequence _head = ThreadTemplateAda.head(threadSubcomponent);
+        CharSequence _head = ThreadTemplateAda.head(threadSubcomponent, connections);
         _builder.append(_head);
         _builder.newLineIfNotEmpty();
         CharSequence _template = ThreadTemplateAda.template(threadSubcomponent);
@@ -38,7 +40,7 @@ public class ThreadTemplateAda {
     return _builder;
   }
   
-  public static CharSequence head(final ThreadSubcomponent subcomponent) {
+  public static CharSequence head(final ThreadSubcomponent subcomponent, final List<Connection> connections) {
     CharSequence _xblockexpression = null;
     {
       ComponentClassifier thread = subcomponent.getClassifier();
@@ -54,43 +56,26 @@ public class ThreadTemplateAda {
           _matched=true;
           StringConcatenation _builder = new StringConcatenation();
           _builder.append("task type ");
-          String _convert = StringUtils.convert(subcomponent.getName());
+          String _convert = StringUtils.convert(((ThreadImplementation)thread).getName());
           _builder.append(_convert);
-          _builder.append("_task is");
+          _builder.append("(");
+          String _formatParam = StringUtils.formatParam(StringUtils.clearspace(FeatureTemplateAda.genThreadFeature(((ThreadImplementation)thread).getAllFeatures(), connections, subcomponent.getName()).toString()));
+          _builder.append(_formatParam);
+          _builder.append(") is");
           _builder.newLineIfNotEmpty();
-          {
-            int _size = subcomponent.getInModes().size();
-            boolean _greaterThan = (_size > 0);
-            if (_greaterThan) {
-              _builder.append("\t");
-              _builder.append("entry Start(");
-              {
-                int _size_1 = ((ThreadImplementation)thread).getAllFeatures().size();
-                boolean _greaterThan_1 = (_size_1 > 0);
-                if (_greaterThan_1) {
-                  String _formatParam = StringUtils.formatParam(StringUtils.clearspace(FeatureTemplateAda.genThreadInFeature(((ThreadImplementation)thread).getAllFeatures()).toString()));
-                  _builder.append(_formatParam, "\t");
-                }
-              }
-              _builder.append(");");
-              _builder.newLineIfNotEmpty();
-            } else {
-              int _size_2 = ((ThreadImplementation)thread).getAllFeatures().size();
-              boolean _greaterThan_2 = (_size_2 > 0);
-              if (_greaterThan_2) {
-                _builder.append("\t");
-                _builder.append("entry Start(");
-                String _formatParam_1 = StringUtils.formatParam(StringUtils.clearspace(FeatureTemplateAda.genThreadInFeature(((ThreadImplementation)thread).getAllFeatures()).toString()));
-                _builder.append(_formatParam_1, "\t");
-                _builder.append(");");
-                _builder.newLineIfNotEmpty();
-              }
-            }
-          }
           _builder.append("end ");
-          String _convert_1 = StringUtils.convert(subcomponent.getName());
+          String _convert_1 = StringUtils.convert(((ThreadImplementation)thread).getName());
           _builder.append(_convert_1);
-          _builder.append("_task;");
+          _builder.append(";");
+          _builder.newLineIfNotEmpty();
+          _builder.newLine();
+          _builder.append("type access_");
+          String _convert_2 = StringUtils.convert(((ThreadImplementation)thread).getName());
+          _builder.append(_convert_2);
+          _builder.append(" is access ");
+          String _convert_3 = StringUtils.convert(((ThreadImplementation)thread).getName());
+          _builder.append(_convert_3);
+          _builder.append(";");
           _builder.newLineIfNotEmpty();
           _switchResult = _builder;
         }
@@ -118,9 +103,9 @@ public class ThreadTemplateAda {
           StringConcatenation _builder = new StringConcatenation();
           _builder.newLine();
           _builder.append("task body ");
-          String _convert = StringUtils.convert(subcomponent.getName());
+          String _convert = StringUtils.convert(((ThreadImplementation)thread).getName());
           _builder.append(_convert);
-          _builder.append("_task is");
+          _builder.append(" is");
           _builder.newLineIfNotEmpty();
           {
             int _size = ((ThreadImplementation)thread).getAllFeatures().size();
@@ -157,30 +142,6 @@ public class ThreadTemplateAda {
           _builder.append("begin");
           _builder.newLine();
           {
-            if (((subcomponent.getInModes().size() > 0) || (((ThreadImplementation)thread).getAllFeatures().size() > 0))) {
-              _builder.append("\t");
-              _builder.append("accept Start(");
-              {
-                int _size_2 = ((ThreadImplementation)thread).getAllFeatures().size();
-                boolean _greaterThan_2 = (_size_2 > 0);
-                if (_greaterThan_2) {
-                  String _formatParam = StringUtils.formatParam(StringUtils.clearspace(FeatureTemplateAda.genThreadInFeature(((ThreadImplementation)thread).getAllFeatures()).toString()));
-                  _builder.append(_formatParam, "\t");
-                }
-              }
-              _builder.append(") do");
-              _builder.newLineIfNotEmpty();
-              _builder.append("\t");
-              _builder.append("\t");
-              CharSequence _initThreadInPortVar = FeatureTemplateAda.initThreadInPortVar(((ThreadImplementation)thread).getAllFeatures());
-              _builder.append(_initThreadInPortVar, "\t\t");
-              _builder.newLineIfNotEmpty();
-              _builder.append("\t");
-              _builder.append("end Start;");
-              _builder.newLine();
-            }
-          }
-          {
             EList<SubprogramCallSequence> _ownedSubprogramCallSequences = ((ThreadImplementation)thread).getOwnedSubprogramCallSequences();
             for(final SubprogramCallSequence subprogramCallSequence : _ownedSubprogramCallSequences) {
               {
@@ -198,9 +159,9 @@ public class ThreadTemplateAda {
             }
           }
           {
-            int _size_3 = ((ThreadImplementation)thread).getOwnedAnnexSubclauses().size();
-            boolean _greaterThan_3 = (_size_3 > 0);
-            if (_greaterThan_3) {
+            int _size_2 = ((ThreadImplementation)thread).getOwnedAnnexSubclauses().size();
+            boolean _greaterThan_2 = (_size_2 > 0);
+            if (_greaterThan_2) {
               {
                 EList<AnnexSubclause> _ownedAnnexSubclauses_1 = ((ThreadImplementation)thread).getOwnedAnnexSubclauses();
                 for(final AnnexSubclause annexSubclause_1 : _ownedAnnexSubclauses_1) {
@@ -217,9 +178,9 @@ public class ThreadTemplateAda {
             }
           }
           _builder.append("end ");
-          String _convert_1 = StringUtils.convert(subcomponent.getName());
+          String _convert_1 = StringUtils.convert(((ThreadImplementation)thread).getName());
           _builder.append(_convert_1);
-          _builder.append("_task;");
+          _builder.append(";");
           _builder.newLineIfNotEmpty();
           _builder.newLine();
           _switchResult = _builder;
@@ -242,6 +203,28 @@ public class ThreadTemplateAda {
         _builder.newLineIfNotEmpty();
         CharSequence _genThreadFeatureVarInProc = FeatureTemplateAda.genThreadFeatureVarInProc(thread.getAllFeatures(), threadSubcomponent.getName());
         _builder.append(_genThreadFeatureVarInProc);
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    return _builder;
+  }
+  
+  /**
+   * 生成线程类型的访问类型的变量（进程中的所有子线程的访问类型）
+   * @param threadSubcomponents 进程中的线程子组件列表
+   */
+  public static CharSequence genThreadAccessVar(final List<ThreadSubcomponent> threadSubcomponents) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      for(final ThreadSubcomponent threadSubcomponent : threadSubcomponents) {
+        ComponentClassifier thread = threadSubcomponent.getClassifier();
+        _builder.newLineIfNotEmpty();
+        String _name = threadSubcomponent.getName();
+        _builder.append(_name);
+        _builder.append("_task : access_");
+        String _convert = StringUtils.convert(thread.getName());
+        _builder.append(_convert);
+        _builder.append(";");
         _builder.newLineIfNotEmpty();
       }
     }

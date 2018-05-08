@@ -13,32 +13,31 @@ import static extension cn.edu.nuaa.aadl2.generator.templateAda.AnnexSubclauseTe
 import java.util.List
 import org.osate.aadl2.AnnexSubclause
 import org.osate.aadl2.DefaultAnnexSubclause
+import org.osate.aadl2.Connection
 
 class ThreadTemplateAda {
 	/*
 	 * 处理进程实现下的线程子组件
 	 * @param threadSubcomponents 线程子组件列表
+	 * @param connections 进程中的connection列表
 	 */
-	def static genProcessThreadSubcomponent(List<ThreadSubcomponent> threadSubcomponents)'''
+	def static genProcessThreadSubcomponent(List<ThreadSubcomponent> threadSubcomponents, List<Connection> connections)'''
 		«FOR threadSubcomponent : threadSubcomponents»
-			«threadSubcomponent.head»
+			«threadSubcomponent.head(connections)»
 			«threadSubcomponent.template»
 		«ENDFOR»
 	'''
 	
-	def static head(ThreadSubcomponent subcomponent){
+	def static head(ThreadSubcomponent subcomponent, List<Connection> connections){
 		var thread=subcomponent.classifier
 		switch thread{
 			ThreadType : '''
 			'''
 			ThreadImplementation : '''
-				task type «subcomponent.name.convert»_task is
-					«IF subcomponent.inModes.size >0»
-					entry Start(«IF thread.allFeatures.size>0»«thread.allFeatures.genThreadInFeature.toString.clearspace.formatParam»«ENDIF»);
-					«ELSEIF thread.allFeatures.size>0»
-					entry Start(«thread.allFeatures.genThreadInFeature.toString.clearspace.formatParam»);
-					«ENDIF»
-				end «subcomponent.name.convert»_task;
+				task type «thread.name.convert»(«thread.allFeatures.genThreadFeature(connections,subcomponent.name).toString.clearspace.formatParam») is
+				end «thread.name.convert»;
+				
+				type access_«thread.name.convert» is access «thread.name.convert»;
 			'''
 		}
 	}
@@ -51,7 +50,7 @@ class ThreadTemplateAda {
 			'''
 			ThreadImplementation : '''
 				
-				task body «subcomponent.name.convert»_task is
+				task body «thread.name.convert» is
 					«IF thread.allFeatures.size>0»
 						«thread.allFeatures.genThreadInPortVar»
 					«ENDIF»
@@ -63,11 +62,6 @@ class ThreadTemplateAda {
 						«ENDFOR»
 					«ENDIF»
 				begin
-					«IF subcomponent.inModes.size>0 || thread.allFeatures.size>0»
-					accept Start(«IF thread.allFeatures.size>0»«thread.allFeatures.genThreadInFeature.toString.clearspace.formatParam»«ENDIF») do
-						«thread.allFeatures.initThreadInPortVar»
-					end Start;
-					«ENDIF»
 					«FOR SubprogramCallSequence subprogramCallSequence : thread.ownedSubprogramCallSequences»
 						«FOR SubprogramCall subprogramCall : subprogramCallSequence.ownedSubprogramCalls»
 							«TemplateAda.packageName»_«Tools.getCalledSubprogramName(subprogramCall.calledSubprogram.toString()).convertPoint»;
@@ -79,7 +73,7 @@ class ThreadTemplateAda {
 							«genBehaviorAnnexTransition(annexSubclause as DefaultAnnexSubclause)»
 						«ENDFOR»
 					«ENDIF»
-				end «subcomponent.name.convert»_task;
+				end «thread.name.convert»;
 				
 			'''
 		}
@@ -93,6 +87,16 @@ class ThreadTemplateAda {
 	 	«FOR threadSubcomponent : threadSubcomponents»
 	 		«var thread = threadSubcomponent.classifier»
 	 		«genThreadFeatureVarInProc(thread.allFeatures,threadSubcomponent.name)»
+	 	«ENDFOR»
+	 '''
+	 /*
+	  * 生成线程类型的访问类型的变量（进程中的所有子线程的访问类型）
+	  * @param threadSubcomponents 进程中的线程子组件列表
+	  */
+	 def static genThreadAccessVar(List<ThreadSubcomponent> threadSubcomponents)'''
+	 	«FOR threadSubcomponent : threadSubcomponents»
+	 		«var thread = threadSubcomponent.classifier»
+	 		«threadSubcomponent.name»_task : access_«thread.name.convert»;
 	 	«ENDFOR»
 	 '''
 }

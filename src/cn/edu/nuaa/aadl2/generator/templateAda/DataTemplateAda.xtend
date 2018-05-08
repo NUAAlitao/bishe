@@ -98,7 +98,7 @@ class DataTemplateAda {
 	}
 	
 	def static systemDataSubcomponent(String systemName, List<DataSubcomponent> dataSubcomponents)'''
-		packege «systemName.convert»_data is
+		package «systemName.convert»_data is
 			«FOR DataSubcomponent dataSubcomponent : dataSubcomponents»
 				«dataSubcomponent.template»
 			«ENDFOR»

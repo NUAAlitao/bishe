@@ -80,6 +80,7 @@ class AnnexSubclauseTemplateAda {
 				when «behaviorTransition.sourceState.name» =>
 					«FOR BehaviorTransition behaviorTransition1 : AadlBaVisitors.getTransitionWhereSrc(behaviorTransition.sourceState)»
 						«IF isUsed.get(behaviorTransition1) === null»
+							«initBehaviorAnnexTransitionConditon(behaviorTransition1)»
 							if («dealBehaviorAnnexTransitionCondition(behaviorTransition1).toString.clearspace.dealMultipleSpace») then
 								«dealBehaviorAnnexTransitionAction(behaviorTransition1)»
 								current_state := «behaviorTransition1.destinationState.name»;
@@ -89,6 +90,7 @@ class AnnexSubclauseTemplateAda {
 					«ENDFOR»
 			«ENDIF»
 		«ENDFOR»
+		when others => null;
 		end case;
 	'''
 	
@@ -101,7 +103,7 @@ class AnnexSubclauseTemplateAda {
 						«actionElement.dealActionElement»
 					'''
 					PortSendAction:'''
-						«actionElement.dealActionElement.toString.clearspace»
+						«actionElement.dealActionElement»
 					'''
 					PortDequeueAction:'''
 						«actionElement.dealActionElement»
@@ -136,7 +138,7 @@ class AnnexSubclauseTemplateAda {
 					«action.dealActionElement»
 				'''
 				PortSendAction:'''
-					«action.dealActionElement.toString.clearspace»
+					«action.dealActionElement»
 				'''
 				PortDequeueAction:'''
 					«action.dealActionElement»
@@ -149,11 +151,8 @@ class AnnexSubclauseTemplateAda {
 		«ENDFOR»
 	'''
 	def static dealActionElement(PortSendAction portSendAction)'''
-		«portSendAction.port.element.name»
-		«IF portSendAction.valueExpression !== null»
-			:=«portSendAction.valueExpression.dealValueExpression.clearspace»
-		«ENDIF»
-		;
+		«portSendAction.port.element.name»_temp.send(«IF portSendAction.valueExpression !== null»«portSendAction.valueExpression.dealValueExpression.clearspace»«ELSE»True«ENDIF»);
+		«portSendAction.port.element.name»_temp.release;
 	'''
 	def static dealActionElement(PortDequeueAction portDequeueAction)'''
 		«portDequeueAction.target.dealActionTarget.toString.clearspace» := «portDequeueAction.port.element.name»;
@@ -167,6 +166,17 @@ class AnnexSubclauseTemplateAda {
 				«target.element.name»
 			'''
 		}»
+	'''
+	
+	def static initBehaviorAnnexTransitionConditon(BehaviorTransition behaviorTransition)'''
+		«IF behaviorTransition.condition !== null»
+			«switch behaviorTransition.condition{
+				DispatchCondition:'''
+					«dealDispatchCondition(behaviorTransition.condition as DispatchCondition).toString.clearspace»_temp.secure;
+					«dealDispatchCondition(behaviorTransition.condition as DispatchCondition).toString.clearspace»:=«dealDispatchCondition(behaviorTransition.condition as DispatchCondition).toString.clearspace»_temp.receive;
+				'''
+			}»
+		«ENDIF»
 	'''
 	
 	def static dealBehaviorAnnexTransitionCondition(BehaviorTransition behaviorTransition)'''

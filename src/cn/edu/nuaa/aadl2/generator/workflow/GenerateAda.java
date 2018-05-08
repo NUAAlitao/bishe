@@ -14,6 +14,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.osate.aadl2.AadlPackage;
+import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.Mode;
 import org.osate.aadl2.ModelUnit;
@@ -124,17 +125,29 @@ public class GenerateAda {
       EList<ProcessSubcomponent> _ownedProcessSubcomponents = system.getOwnedProcessSubcomponents();
       for(final ProcessSubcomponent processSubcomponent : _ownedProcessSubcomponents) {
         _builder.append("\t");
+        ComponentClassifier process = processSubcomponent.getClassifier();
+        _builder.newLineIfNotEmpty();
+        _builder.append("\t");
         _builder.append("procedure ");
         String _convert_1 = StringUtils.convert(processSubcomponent.getName());
         _builder.append(_convert_1, "\t");
-        _builder.append(" is separate;");
+        _builder.append(" (");
+        {
+          int _size = process.getAllFeatures().size();
+          boolean _greaterThan = (_size > 0);
+          if (_greaterThan) {
+            String _formatParam = StringUtils.formatParam(StringUtils.clearspace(FeatureTemplateAda.genProcessFeature(process.getAllFeatures()).toString()));
+            _builder.append(_formatParam, "\t");
+          }
+        }
+        _builder.append(") is separate;");
         _builder.newLineIfNotEmpty();
       }
     }
     {
-      int _size = system.getOwnedConnections().size();
-      boolean _greaterThan = (_size > 0);
-      if (_greaterThan) {
+      int _size_1 = system.getOwnedConnections().size();
+      boolean _greaterThan_1 = (_size_1 > 0);
+      if (_greaterThan_1) {
         _builder.append("\t");
         CharSequence _genConnectionVar = ConnectionTemplateAda.genConnectionVar(system.getOwnedConnections());
         _builder.append(_genConnectionVar, "\t");
@@ -142,9 +155,9 @@ public class GenerateAda {
       }
     }
     {
-      int _size_1 = system.getOwnedModes().size();
-      boolean _greaterThan_1 = (_size_1 > 0);
-      if (_greaterThan_1) {
+      int _size_2 = system.getOwnedModes().size();
+      boolean _greaterThan_2 = (_size_2 > 0);
+      if (_greaterThan_2) {
         _builder.append("\t");
         String _clearspace = StringUtils.clearspace(ModeTemplateAda.genMode(system.getOwnedModes()).toString());
         _builder.append(_clearspace, "\t");
@@ -157,9 +170,9 @@ public class GenerateAda {
     _builder.append("begin");
     _builder.newLine();
     {
-      int _size_2 = system.getOwnedModes().size();
-      boolean _greaterThan_2 = (_size_2 > 0);
-      if (_greaterThan_2) {
+      int _size_3 = system.getOwnedModes().size();
+      boolean _greaterThan_3 = (_size_3 > 0);
+      if (_greaterThan_3) {
         _builder.append("\t");
         String _clearspace_1 = StringUtils.clearspace(ModeTemplateAda.initMode(system.getOwnedModes()).toString());
         _builder.append(_clearspace_1, "\t");
@@ -167,9 +180,9 @@ public class GenerateAda {
       }
     }
     {
-      int _size_3 = system.getOwnedModeTransitions().size();
-      boolean _greaterThan_3 = (_size_3 > 0);
-      if (_greaterThan_3) {
+      int _size_4 = system.getOwnedModeTransitions().size();
+      boolean _greaterThan_4 = (_size_4 > 0);
+      if (_greaterThan_4) {
         _builder.append("\t");
         CharSequence _genModeTransition = ModeTemplateAda.genModeTransition(system.getOwnedModeTransitions());
         _builder.append(_genModeTransition, "\t");
@@ -177,9 +190,9 @@ public class GenerateAda {
       }
     }
     {
-      int _size_4 = system.getOwnedModes().size();
-      boolean _greaterThan_4 = (_size_4 > 0);
-      if (_greaterThan_4) {
+      int _size_5 = system.getOwnedModes().size();
+      boolean _greaterThan_5 = (_size_5 > 0);
+      if (_greaterThan_5) {
         _builder.append("\t");
         CharSequence _dealSystemMode = GenerateAda.dealSystemMode(system.getOwnedModes(), system.getAllSubcomponents(), system.getOwnedConnections());
         _builder.append(_dealSystemMode, "\t");
@@ -207,7 +220,7 @@ public class GenerateAda {
    */
   public static CharSequence dealSystemMode(final List<Mode> modes, final List<Subcomponent> subcomponents, final List<Connection> connections) {
     StringConcatenation _builder = new StringConcatenation();
-    _builder.append("case surrent_mode is");
+    _builder.append("case current_mode is");
     _builder.newLine();
     {
       for(final Mode mode : modes) {

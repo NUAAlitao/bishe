@@ -10,6 +10,7 @@ import org.osate.aadl2.EventPort
 import org.osate.aadl2.DataPort
 import org.osate.aadl2.EventDataPort
 import org.osate.aadl2.DataAccess
+import org.osate.aadl2.Connection
 
 class FeatureTemplateAda {
 	/*
@@ -32,13 +33,49 @@ class FeatureTemplateAda {
 		«ENDFOR»
 	'''
 	/*
-	 * 处理线程类型声明中的输入端口，生成形参
+	 * 处理线程类型声明中的输入输出端口，生成形参
 	 * @param features 线程类型声明中的features列表
+	 * @param connections 线程所在进程中的connections列表
+	 * @param threadName 线程子组件名称
 	 */
-	def static genThreadInFeature(List<Feature> features)'''
+	def static genThreadFeature(List<Feature> features, List<Connection> connections, String threadName)'''
 		«FOR Feature feature : features»
-			«feature.dealThreadInFeature»; 
+			«feature.dealThreadFeature(getConnection(connections,threadName,feature.name))»; 
 		«ENDFOR»
+	'''
+	/*
+	 * 得到和子线程对应端口连接的连接对象
+	 * @param connections 连接列表
+	 * @param threadName 线程名称
+	 * @param featureName 线程的feature端口名称
+	 * @return 符合条件的connection对象或者null
+	 */
+	def static Connection getConnection(List<Connection> connections, String threadName, String featureName){
+		for(connection : connections){
+			if(connection.source.context !== null && connection.source.context.name.equals(threadName) && connection.source.connectionEnd.name.equals(featureName)){
+				return connection;
+			}
+			if(connection.destination.context !== null && connection.destination.context.name.equals(threadName) && connection.destination.connectionEnd.name.equals(featureName)){
+				return connection;
+			}
+		}
+		return null;
+	}
+	
+	def static dealThreadFeature(Feature feature,Connection connection)'''
+		«IF connection === null»
+			«println("存在端口没有连接")»
+		«ENDIF»
+		«switch feature{
+			DataPort,
+			EventPort,
+			EventDataPort:'''
+				«feature.name»_temp : access «connection.name».base
+			'''
+			DataAccess:'''
+				«feature.name»_temp : access «feature.dealClassisfy»
+			'''
+		}»
 	'''
 	/*
 	 * 将线程的out和in out端口生成为进程中的变量
@@ -67,29 +104,16 @@ class FeatureTemplateAda {
 		«ENDFOR»
 	'''
 	/*
-	 * 处理线程类型声明中的输入端口，生成线程内的局部变量
+	 * 处理线程类型声明中的输入输出端口，生成线程内的局部变量
 	 * @param features 线程类型声明中的features列表
 	 */
 	def static genThreadInPortVar(List<Feature> features)'''
 		«FOR feature : features»
 			«switch feature{
-				DataPort:'''
-					«IF feature.in == true && feature.out == false»
-						«feature.name» : «feature.dealClassisfy.toString.clearspace»;
-					«ENDIF»
-				'''
-				EventPort:'''
-					«IF feature.in == true && feature.out == false»
-						«feature.name» : «feature.dealClassisfy.toString.clearspace»;
-					«ENDIF»
-				'''
+				DataPort,
+				EventPort,
 				EventDataPort:'''
-					«IF feature.in == true && feature.out == false»
-						«feature.name» : «feature.dealClassisfy.toString.clearspace»;
-					«ENDIF»
-				'''
-				DataAccess:'''
-					«feature.name» : access «feature.dealClassisfy.toString.clearspace»;
+					«feature.name» : «feature.dealClassisfy.toString.clearspace»;
 				'''
 			}»
 		«ENDFOR»
@@ -123,29 +147,6 @@ class FeatureTemplateAda {
 		«ENDFOR»
 	'''
 
-	def static dealThreadInFeature(Feature feature)'''
-		«switch feature{
-			DataPort:'''
-				«IF feature.in == true && feature.out == false»
-					«feature.name»_temp : in «feature.dealClassisfy»
-				«ENDIF»
-			'''
-			EventPort:'''
-				«IF feature.in == true && feature.out == false»
-					«feature.name»_temp : in «feature.dealClassisfy»
-				«ENDIF»
-			'''
-			EventDataPort:'''
-				«IF feature.in == true && feature.out == false»
-					«feature.name»_temp : in «feature.dealClassisfy»
-				«ENDIF»
-			'''
-			DataAccess:'''
-				«feature.name»_temp : access «feature.dealClassisfy»
-			'''
-		}»
-	'''
-	
 	def static dealClassisfy(Feature feature)'''
 		«IF feature.classifier !== null»
 			«feature.classifier.name.convertPoint»

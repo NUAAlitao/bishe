@@ -89,7 +89,8 @@ class GenerateAda {
 	def static genSystemProcedure(SystemImplementation system, String systemName)'''
 		procedure «systemName.convert» is
 			«FOR processSubcomponent : system.ownedProcessSubcomponents»
-				procedure «processSubcomponent.name.convert» is separate;
+				«var process = processSubcomponent.classifier»
+				procedure «processSubcomponent.name.convert» («IF process.allFeatures.size > 0»«process.allFeatures.genProcessFeature.toString.clearspace.formatParam»«ENDIF») is separate;
 			«ENDFOR»
 			«IF system.ownedConnections.size > 0»
 				«system.ownedConnections.genConnectionVar»
@@ -119,7 +120,7 @@ class GenerateAda {
 	 * @param connections 系统的连接列表
 	 */
 	def static dealSystemMode(List<Mode> modes,List<Subcomponent> subcomponents,List<Connection> connections)'''
-		case surrent_mode is
+		case current_mode is
 		«FOR mode : modes»
 		when «mode.name» =>
 			«FOR subcomponent : subcomponents»

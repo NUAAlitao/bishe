@@ -1,8 +1,11 @@
 package cn.edu.nuaa.aadl2.generator.templateAda;
 
+import cn.edu.nuaa.aadl2.generator.templateAda.FeatureTemplateAda;
 import cn.edu.nuaa.aadl2.generator.utils.StringUtils;
 import java.util.List;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtend2.lib.StringConcatenation;
+import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.osate.aadl2.AccessConnection;
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.Connection;
@@ -12,6 +15,8 @@ import org.osate.aadl2.DataAccess;
 import org.osate.aadl2.DataPort;
 import org.osate.aadl2.EventDataPort;
 import org.osate.aadl2.EventPort;
+import org.osate.aadl2.Feature;
+import org.osate.aadl2.Port;
 import org.osate.aadl2.PortConnection;
 import org.osate.aadl2.Subcomponent;
 import org.osate.aadl2.ThreadSubcomponent;
@@ -48,6 +53,82 @@ public class ConnectionTemplateAda {
         }
         _builder.append(_switchResult);
         _builder.newLineIfNotEmpty();
+      }
+    }
+    return _builder;
+  }
+  
+  /**
+   * 生成保护类型（当连接是进程内的两个线程之间的端口或者是进程和线程之间的端口交互时）
+   * @param connections 进程组件下的所有连接
+   */
+  public static CharSequence genProtectType(final List<Connection> connections) {
+    StringConcatenation _builder = new StringConcatenation();
+    _builder.append("with DataType; use DataType;");
+    _builder.newLine();
+    _builder.append("with base_protect;");
+    _builder.newLine();
+    _builder.newLine();
+    _builder.append("package protected_types is");
+    _builder.newLine();
+    {
+      for(final Connection connection : connections) {
+        _builder.append("\t");
+        CharSequence _switchResult = null;
+        boolean _matched = false;
+        if (connection instanceof PortConnection) {
+          _matched=true;
+          StringConcatenation _builder_1 = new StringConcatenation();
+          CharSequence _dealPortConType = ConnectionTemplateAda.dealPortConType(((PortConnection)connection));
+          _builder_1.append(_dealPortConType);
+          _builder_1.newLineIfNotEmpty();
+          _switchResult = _builder_1;
+        }
+        _builder.append(_switchResult, "\t");
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    _builder.append("end protected_types;");
+    _builder.newLine();
+    return _builder;
+  }
+  
+  /**
+   * 处理进程中的端口连接，生成对应的保护类型
+   * @param connection 端口连接
+   */
+  public static CharSequence dealPortConType(final PortConnection portConnection) {
+    StringConcatenation _builder = new StringConcatenation();
+    _builder.append("package ");
+    String _name = portConnection.getName();
+    _builder.append(_name);
+    _builder.append(" is new base_protect(");
+    String _clearspace = StringUtils.clearspace(ConnectionTemplateAda.dealConnectionEndType(portConnection.getSource().getConnectionEnd()).toString());
+    _builder.append(_clearspace);
+    _builder.append(");");
+    _builder.newLineIfNotEmpty();
+    return _builder;
+  }
+  
+  /**
+   * 生成保护类型对象（当连接是进程内的两个线程之间的端口或者是进程和线程之间的端口交互时）
+   * @param connections 进程组件下的所有连接
+   */
+  public static CharSequence genProtectObject(final List<Connection> connections) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      for(final Connection connection : connections) {
+        {
+          if ((connection instanceof PortConnection)) {
+            String _name = ((PortConnection)connection).getName();
+            _builder.append(_name);
+            _builder.append("_object : aliased ");
+            String _name_1 = ((PortConnection)connection).getName();
+            _builder.append(_name_1);
+            _builder.append(".base;");
+            _builder.newLineIfNotEmpty();
+          }
+        }
       }
     }
     return _builder;
@@ -325,6 +406,78 @@ public class ConnectionTemplateAda {
     }
     _builder.append(_switchResult);
     _builder.newLineIfNotEmpty();
+    return _builder;
+  }
+  
+  /**
+   * 根据进程中的连接关系生成线程端口和保护对象的传递关系
+   * @param connections 进程中的connections列表
+   * @param subcomponent 进程中的线程子组件
+   */
+  public static CharSequence genThreadConParam(final List<Connection> connections, final ThreadSubcomponent subcomponent) {
+    StringConcatenation _builder = new StringConcatenation();
+    {
+      EList<Feature> _allFeatures = subcomponent.getClassifier().getAllFeatures();
+      for(final Feature feature : _allFeatures) {
+        Connection connection = FeatureTemplateAda.getConnection(connections, subcomponent.getName(), feature.getName());
+        _builder.newLineIfNotEmpty();
+        {
+          if ((connection == null)) {
+            String _name = subcomponent.getName();
+            String _plus = (_name + "线程的");
+            String _name_1 = feature.getName();
+            String _plus_1 = (_plus + _name_1);
+            String _plus_2 = (_plus_1 + "端口没有连接交互");
+            String _println = InputOutput.<String>println(_plus_2);
+            _builder.append(_println);
+            _builder.newLineIfNotEmpty();
+          }
+        }
+        CharSequence _switchResult = null;
+        boolean _matched = false;
+        if (feature instanceof DataPort) {
+          _matched=true;
+        }
+        if (!_matched) {
+          if (feature instanceof EventPort) {
+            _matched=true;
+          }
+        }
+        if (!_matched) {
+          if (feature instanceof EventDataPort) {
+            _matched=true;
+          }
+        }
+        if (_matched) {
+          StringConcatenation _builder_1 = new StringConcatenation();
+          String _name_2 = ((Port)feature).getName();
+          _builder_1.append(_name_2);
+          _builder_1.append("_temp=>");
+          String _name_3 = connection.getName();
+          _builder_1.append(_name_3);
+          _builder_1.append("_object\'Access, ");
+          _builder_1.newLineIfNotEmpty();
+          _switchResult = _builder_1;
+        }
+        if (!_matched) {
+          if (feature instanceof DataAccess) {
+            _matched=true;
+            StringConcatenation _builder_2 = new StringConcatenation();
+            String _name_4 = ((DataAccess)feature).getName();
+            _builder_2.append(_name_4);
+            _builder_2.append("_temp : access ");
+            CharSequence _dealClassisfy = FeatureTemplateAda.dealClassisfy(feature);
+            _builder_2.append(_dealClassisfy);
+            _builder_2.append(", ");
+            _builder_2.newLineIfNotEmpty();
+            _switchResult = _builder_2;
+          }
+        }
+        _builder.append(_switchResult);
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    _builder.newLine();
     return _builder;
   }
 }

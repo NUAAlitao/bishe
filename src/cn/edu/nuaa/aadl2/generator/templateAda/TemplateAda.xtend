@@ -13,20 +13,45 @@ class TemplateAda {
 	
 	public static boolean isMeta=true;
 	
-	public static String head='''
-		#include "taskLib.h"
+	public static String base_protect_ads='''
+		generic
+		    type Element_Type is private;
+		package base_protect is
+		    protected type base(count:Integer:=0) is
+		        entry secure;
+		        procedure release;
+		        procedure send(message:Element_Type);
+		        function receive return Element_Type;
+		    private
+		        current_count: Integer := count;
+		        values: Element_Type;
+		    end base;
+		end base_protect;
 	'''
 	
-	public static String bakhead='''
-		#include "taskLib.h"
-	'''
-	
-	public static String dhead='''
-		typedef char* string;
-	'''
-	
-	public static String bakdhead='''
-		#include "taskLib.h"
-		typedef char* string;
+	public static String base_protect_adb='''
+		package body base_protect is
+		   protected body base is
+		      entry secure when current_count>0 is
+		      begin  
+		         current_count := current_count-1;
+		      end secure;
+		
+		      procedure release is
+		      begin
+		         current_count:= current_count+1;
+		      end release;
+		
+		      procedure send (message:Element_Type) is
+		      begin
+		         values := message;
+		      end send;
+		
+		      function receive return Element_Type is
+		      begin
+		         return values;
+		      end receive;
+		   end base;
+		end base_protect;
 	'''
 }

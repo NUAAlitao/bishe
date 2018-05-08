@@ -5,6 +5,7 @@ import cn.edu.nuaa.aadl2.generator.templateAda.ConnectionTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.DataTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.FeatureTemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.ModeTemplateAda;
+import cn.edu.nuaa.aadl2.generator.templateAda.TemplateAda;
 import cn.edu.nuaa.aadl2.generator.templateAda.ThreadTemplateAda;
 import cn.edu.nuaa.aadl2.generator.utils.StringUtils;
 import cn.edu.nuaa.aadl2.generator.utils.Tools;
@@ -16,6 +17,7 @@ import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.DefaultAnnexSubclause;
 import org.osate.aadl2.Mode;
+import org.osate.aadl2.ModeTransition;
 import org.osate.aadl2.ProcessImplementation;
 import org.osate.aadl2.ProcessSubcomponent;
 import org.osate.aadl2.ProcessType;
@@ -24,6 +26,8 @@ import org.osate.aadl2.ThreadSubcomponent;
 
 @SuppressWarnings("all")
 public class ProcessTemplateAda {
+  private static String currentFolder = "";
+  
   /**
    * 处理系统实现下的进程子组件
    * @param parentFolder 系统实现目录路径
@@ -33,16 +37,17 @@ public class ProcessTemplateAda {
   public static void genSystemProcessSubcomponent(final String parentFolder, final ProcessSubcomponent processSubcomponent, final String systemName) {
     String _convert = StringUtils.convert(processSubcomponent.getName());
     String _plus = ((parentFolder + "/process_") + _convert);
-    Tools.folder(_plus);
-    String _convert_1 = StringUtils.convert(processSubcomponent.getName());
-    String _plus_1 = ((parentFolder + "/process_") + _convert_1);
-    String _convert_2 = StringUtils.convert(systemName);
-    String _plus_2 = (_convert_2 + "-");
-    String _convert_3 = StringUtils.convert(processSubcomponent.getName());
-    String _plus_3 = (_plus_2 + _convert_3);
-    String _plus_4 = (_plus_3 + ".adb");
-    Tools.createFile(_plus_1, _plus_4, 
+    ProcessTemplateAda.currentFolder = _plus;
+    Tools.folder(ProcessTemplateAda.currentFolder);
+    String _convert_1 = StringUtils.convert(systemName);
+    String _plus_1 = (_convert_1 + "-");
+    String _convert_2 = StringUtils.convert(processSubcomponent.getName());
+    String _plus_2 = (_plus_1 + _convert_2);
+    String _plus_3 = (_plus_2 + ".adb");
+    Tools.createFile(ProcessTemplateAda.currentFolder, _plus_3, 
       ProcessTemplateAda.template(processSubcomponent, systemName).toString());
+    Tools.createFile(ProcessTemplateAda.currentFolder, "base_protect.ads", TemplateAda.base_protect_ads);
+    Tools.createFile(ProcessTemplateAda.currentFolder, "base_protect.adb", TemplateAda.base_protect_adb);
   }
   
   public static CharSequence template(final ProcessSubcomponent processSubcomponent, final String systemName) {
@@ -54,7 +59,7 @@ public class ProcessTemplateAda {
       if (process instanceof ProcessType) {
         _matched=true;
         StringConcatenation _builder = new StringConcatenation();
-        _builder.append("\t\t\t\t");
+        _builder.append("\t\t\t");
         _builder.newLine();
         _switchResult = _builder;
       }
@@ -62,6 +67,13 @@ public class ProcessTemplateAda {
         if (process instanceof ProcessImplementation) {
           _matched=true;
           StringConcatenation _builder = new StringConcatenation();
+          _builder.append("with Ada.Text_IO; use Ada.Text_IO;");
+          _builder.newLine();
+          _builder.append("with DataType; use DataType;");
+          _builder.newLine();
+          _builder.append("with protected_types; use protected_types;");
+          _builder.newLine();
+          _builder.newLine();
           _builder.append("separate(");
           String _convert = StringUtils.convert(systemName);
           _builder.append(_convert);
@@ -97,11 +109,7 @@ public class ProcessTemplateAda {
             boolean _greaterThan_2 = (_size_2 > 0);
             if (_greaterThan_2) {
               _builder.append("\t");
-              CharSequence _genThreadPortVar = ThreadTemplateAda.genThreadPortVar(((ProcessImplementation)process).getOwnedThreadSubcomponents());
-              _builder.append(_genThreadPortVar, "\t");
-              _builder.newLineIfNotEmpty();
-              _builder.append("\t");
-              CharSequence _genProcessThreadSubcomponent = ThreadTemplateAda.genProcessThreadSubcomponent(((ProcessImplementation)process).getOwnedThreadSubcomponents());
+              CharSequence _genProcessThreadSubcomponent = ThreadTemplateAda.genProcessThreadSubcomponent(((ProcessImplementation)process).getOwnedThreadSubcomponents(), ((ProcessImplementation)process).getOwnedConnections());
               _builder.append(_genProcessThreadSubcomponent, "\t");
               _builder.newLineIfNotEmpty();
             }
@@ -111,15 +119,28 @@ public class ProcessTemplateAda {
             boolean _greaterThan_3 = (_size_3 > 0);
             if (_greaterThan_3) {
               _builder.append("\t");
-              CharSequence _genConnectionVar = ConnectionTemplateAda.genConnectionVar(((ProcessImplementation)process).getOwnedConnections());
-              _builder.append(_genConnectionVar, "\t");
+              Tools.createFile(ProcessTemplateAda.currentFolder, "protected_types.ads", ConnectionTemplateAda.genProtectType(((ProcessImplementation)process).getOwnedConnections()).toString());
+              _builder.newLineIfNotEmpty();
+              _builder.append("\t");
+              CharSequence _genProtectObject = ConnectionTemplateAda.genProtectObject(((ProcessImplementation)process).getOwnedConnections());
+              _builder.append(_genProtectObject, "\t");
               _builder.newLineIfNotEmpty();
             }
           }
           {
-            int _size_4 = ((ProcessImplementation)process).getOwnedAnnexSubclauses().size();
+            int _size_4 = ((ProcessImplementation)process).getOwnedThreadSubcomponents().size();
             boolean _greaterThan_4 = (_size_4 > 0);
             if (_greaterThan_4) {
+              _builder.append("\t");
+              CharSequence _genThreadAccessVar = ThreadTemplateAda.genThreadAccessVar(((ProcessImplementation)process).getOwnedThreadSubcomponents());
+              _builder.append(_genThreadAccessVar, "\t");
+              _builder.newLineIfNotEmpty();
+            }
+          }
+          {
+            int _size_5 = ((ProcessImplementation)process).getOwnedAnnexSubclauses().size();
+            boolean _greaterThan_5 = (_size_5 > 0);
+            if (_greaterThan_5) {
               {
                 EList<AnnexSubclause> _ownedAnnexSubclauses = ((ProcessImplementation)process).getOwnedAnnexSubclauses();
                 for(final AnnexSubclause annexSubclause : _ownedAnnexSubclauses) {
@@ -139,9 +160,9 @@ public class ProcessTemplateAda {
             }
           }
           {
-            int _size_5 = ((ProcessImplementation)process).getOwnedModes().size();
-            boolean _greaterThan_5 = (_size_5 > 0);
-            if (_greaterThan_5) {
+            int _size_6 = ((ProcessImplementation)process).getOwnedModes().size();
+            boolean _greaterThan_6 = (_size_6 > 0);
+            if (_greaterThan_6) {
               _builder.append("\t");
               String _clearspace = StringUtils.clearspace(ModeTemplateAda.genMode(((ProcessImplementation)process).getOwnedModes()).toString());
               _builder.append(_clearspace, "\t");
@@ -154,9 +175,9 @@ public class ProcessTemplateAda {
           _builder.append("begin");
           _builder.newLine();
           {
-            int _size_6 = ((ProcessImplementation)process).getOwnedAnnexSubclauses().size();
-            boolean _greaterThan_6 = (_size_6 > 0);
-            if (_greaterThan_6) {
+            int _size_7 = ((ProcessImplementation)process).getOwnedAnnexSubclauses().size();
+            boolean _greaterThan_7 = (_size_7 > 0);
+            if (_greaterThan_7) {
               {
                 EList<AnnexSubclause> _ownedAnnexSubclauses_1 = ((ProcessImplementation)process).getOwnedAnnexSubclauses();
                 for(final AnnexSubclause annexSubclause_1 : _ownedAnnexSubclauses_1) {
@@ -173,9 +194,9 @@ public class ProcessTemplateAda {
             }
           }
           {
-            int _size_7 = ((ProcessImplementation)process).getOwnedModes().size();
-            boolean _greaterThan_7 = (_size_7 > 0);
-            if (_greaterThan_7) {
+            int _size_8 = ((ProcessImplementation)process).getOwnedModes().size();
+            boolean _greaterThan_8 = (_size_8 > 0);
+            if (_greaterThan_8) {
               _builder.append("\t");
               String _clearspace_2 = StringUtils.clearspace(ModeTemplateAda.initMode(((ProcessImplementation)process).getOwnedModes()).toString());
               _builder.append(_clearspace_2, "\t");
@@ -183,21 +204,21 @@ public class ProcessTemplateAda {
             }
           }
           {
-            int _size_8 = ((ProcessImplementation)process).getOwnedModeTransitions().size();
-            boolean _greaterThan_8 = (_size_8 > 0);
-            if (_greaterThan_8) {
+            int _size_9 = ((ProcessImplementation)process).getOwnedModeTransitions().size();
+            boolean _greaterThan_9 = (_size_9 > 0);
+            if (_greaterThan_9) {
               _builder.append("\t");
-              CharSequence _genModeTransition = ModeTemplateAda.genModeTransition(((ProcessImplementation)process).getOwnedModeTransitions());
-              _builder.append(_genModeTransition, "\t");
+              CharSequence _genProcessModeTransition = ModeTemplateAda.genProcessModeTransition(((ProcessImplementation)process).getOwnedModeTransitions(), ((ProcessImplementation)process).getOwnedConnections());
+              _builder.append(_genProcessModeTransition, "\t");
               _builder.newLineIfNotEmpty();
             }
           }
           {
-            int _size_9 = ((ProcessImplementation)process).getOwnedModes().size();
-            boolean _greaterThan_9 = (_size_9 > 0);
-            if (_greaterThan_9) {
+            int _size_10 = ((ProcessImplementation)process).getOwnedModes().size();
+            boolean _greaterThan_10 = (_size_10 > 0);
+            if (_greaterThan_10) {
               _builder.append("\t");
-              CharSequence _dealProcessMode = ProcessTemplateAda.dealProcessMode(((ProcessImplementation)process).getOwnedModes(), ((ProcessImplementation)process).getAllSubcomponents(), ((ProcessImplementation)process).getOwnedConnections());
+              CharSequence _dealProcessMode = ProcessTemplateAda.dealProcessMode(((ProcessImplementation)process).getOwnedModes(), ((ProcessImplementation)process).getAllSubcomponents(), ((ProcessImplementation)process).getOwnedConnections(), ((ProcessImplementation)process).getOwnedModeTransitions());
               _builder.append(_dealProcessMode, "\t");
               _builder.newLineIfNotEmpty();
             } else {
@@ -226,9 +247,9 @@ public class ProcessTemplateAda {
    * @param subcomponents 进程的子组件列表
    * @param connections 进程的连接列表
    */
-  public static CharSequence dealProcessMode(final List<Mode> modes, final List<Subcomponent> subcomponents, final List<Connection> connections) {
+  public static CharSequence dealProcessMode(final List<Mode> modes, final List<Subcomponent> subcomponents, final List<Connection> connections, final List<ModeTransition> modeTransitions) {
     StringConcatenation _builder = new StringConcatenation();
-    _builder.append("case surrent_mode is");
+    _builder.append("case current_mode is");
     _builder.newLine();
     {
       for(final Mode mode : modes) {
@@ -236,6 +257,10 @@ public class ProcessTemplateAda {
         String _name = mode.getName();
         _builder.append(_name);
         _builder.append(" =>");
+        _builder.newLineIfNotEmpty();
+        _builder.append("\t");
+        CharSequence _genModeTriggerSend = ModeTemplateAda.genModeTriggerSend(modeTransitions, connections, mode.getName());
+        _builder.append(_genModeTriggerSend, "\t");
         _builder.newLineIfNotEmpty();
         {
           for(final Subcomponent subcomponent : subcomponents) {
@@ -249,8 +274,11 @@ public class ProcessTemplateAda {
                 if ((((ThreadSubcomponent)subcomponent).getInModes().contains(mode) || ((((ThreadSubcomponent)subcomponent).getInModes().size() == 0) && (((ThreadSubcomponent)subcomponent).getAllFeatures().size() > 0)))) {
                   String _convert = StringUtils.convert(((ThreadSubcomponent)subcomponent).getName());
                   _builder_1.append(_convert);
-                  _builder_1.append("_task.Start(");
-                  String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genConParam(connections, subcomponent).toString()));
+                  _builder_1.append("_task := new ");
+                  String _convert_1 = StringUtils.convert(((ThreadSubcomponent)subcomponent).getClassifier().getName());
+                  _builder_1.append(_convert_1);
+                  _builder_1.append("(");
+                  String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genThreadConParam(connections, ((ThreadSubcomponent)subcomponent)).toString()));
                   _builder_1.append(_formatParam);
                   _builder_1.append(");");
                   _builder_1.newLineIfNotEmpty();
@@ -289,8 +317,11 @@ public class ProcessTemplateAda {
             if (_greaterThan) {
               String _convert = StringUtils.convert(((ThreadSubcomponent)subcomponent).getName());
               _builder_1.append(_convert);
-              _builder_1.append("_task.Start(");
-              String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genConParam(connections, subcomponent).toString()));
+              _builder_1.append("_task := new ");
+              String _convert_1 = StringUtils.convert(((ThreadSubcomponent)subcomponent).getClassifier().getName());
+              _builder_1.append(_convert_1);
+              _builder_1.append("(");
+              String _formatParam = StringUtils.formatParam(StringUtils.clearspace(ConnectionTemplateAda.genThreadConParam(connections, ((ThreadSubcomponent)subcomponent)).toString()));
               _builder_1.append(_formatParam);
               _builder_1.append(");");
               _builder_1.newLineIfNotEmpty();
