@@ -26,6 +26,7 @@ import org.osate.aadl2.ModelUnit
 import org.osate.aadl2.AadlPackage
 import org.osate.aadl2.Connection
 import org.osate.aadl2.ProcessorSubcomponent
+import org.eclipse.swt.widgets.Shell
 
 class GenerateAda {
 	var static adaFolder = "Ada_codes"
@@ -43,6 +44,7 @@ class GenerateAda {
 						genDataType(adaFolder+"/system_"+system.name.convert, modelUnit)
 				}
 			}
+			
 		}
 	}
 	/*
@@ -52,6 +54,8 @@ class GenerateAda {
 	 * @param systemName 此系统名称
 	 */
 	def static generateSystem(String parentFolderPath, SystemImplementation system, String systemName){
+		TemplateAda.clearLogMessage()
+		TemplateAda.addLogMessage("系统",systemName)
 		var String currentFolder = "system_"
 		if(systemName === null){
 			currentFolder += system.name.convert 

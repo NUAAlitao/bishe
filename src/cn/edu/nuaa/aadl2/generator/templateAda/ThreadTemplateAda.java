@@ -8,10 +8,16 @@ import cn.edu.nuaa.aadl2.generator.utils.Tools;
 import java.util.List;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtend2.lib.StringConcatenation;
+import org.osate.aadl2.AbstractNamedValue;
 import org.osate.aadl2.AnnexSubclause;
 import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.DefaultAnnexSubclause;
+import org.osate.aadl2.EnumerationLiteral;
+import org.osate.aadl2.IntegerLiteral;
+import org.osate.aadl2.NamedValue;
+import org.osate.aadl2.PropertyAssociation;
+import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.SubprogramCall;
 import org.osate.aadl2.SubprogramCallSequence;
 import org.osate.aadl2.ThreadImplementation;
@@ -29,6 +35,8 @@ public class ThreadTemplateAda {
     StringConcatenation _builder = new StringConcatenation();
     {
       for(final ThreadSubcomponent threadSubcomponent : threadSubcomponents) {
+        TemplateAda.addLogMessage("线程", threadSubcomponent.getName());
+        _builder.newLineIfNotEmpty();
         CharSequence _head = ThreadTemplateAda.head(threadSubcomponent, connections);
         _builder.append(_head);
         _builder.newLineIfNotEmpty();
@@ -139,8 +147,52 @@ public class ThreadTemplateAda {
               }
             }
           }
+          {
+            EList<PropertyAssociation> _ownedPropertyAssociations = ((ThreadImplementation)thread).getOwnedRealization().getImplemented().getOwnedPropertyAssociations();
+            for(final PropertyAssociation propertyAssociation : _ownedPropertyAssociations) {
+              {
+                boolean _equals = propertyAssociation.getProperty().getName().equals("Dispatch_Protocol");
+                if (_equals) {
+                  {
+                    boolean _equals_1 = ThreadTemplateAda.dealPrppertyExpression(propertyAssociation.getOwnedValues().get(0).getOwnedValue()).equals("Periodic");
+                    if (_equals_1) {
+                      _builder.append("\t");
+                      String period = ThreadTemplateAda.getPeriod(((ThreadImplementation)thread).getOwnedRealization().getImplemented().getOwnedPropertyAssociations());
+                      _builder.newLineIfNotEmpty();
+                      _builder.append("\t");
+                      _builder.append("period : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(");
+                      _builder.append(period, "\t");
+                      _builder.append(");");
+                      _builder.newLineIfNotEmpty();
+                      _builder.append("\t");
+                      _builder.append("next_period : Ada.Real_Time.Time := Ada.Real_Time.Clock + period;");
+                      _builder.newLine();
+                    }
+                  }
+                }
+              }
+            }
+          }
           _builder.append("begin");
           _builder.newLine();
+          {
+            EList<PropertyAssociation> _ownedPropertyAssociations_1 = ((ThreadImplementation)thread).getOwnedRealization().getImplemented().getOwnedPropertyAssociations();
+            for(final PropertyAssociation propertyAssociation_1 : _ownedPropertyAssociations_1) {
+              {
+                boolean _equals_2 = propertyAssociation_1.getProperty().getName().equals("Dispatch_Protocol");
+                if (_equals_2) {
+                  {
+                    boolean _equals_3 = ThreadTemplateAda.dealPrppertyExpression(propertyAssociation_1.getOwnedValues().get(0).getOwnedValue()).equals("Periodic");
+                    if (_equals_3) {
+                      _builder.append("\t");
+                      _builder.append("loop");
+                      _builder.newLine();
+                    }
+                  }
+                }
+              }
+            }
+          }
           {
             EList<SubprogramCallSequence> _ownedSubprogramCallSequences = ((ThreadImplementation)thread).getOwnedSubprogramCallSequences();
             for(final SubprogramCallSequence subprogramCallSequence : _ownedSubprogramCallSequences) {
@@ -173,6 +225,30 @@ public class ThreadTemplateAda {
                   CharSequence _genBehaviorAnnexTransition = AnnexSubclauseTemplateAda.genBehaviorAnnexTransition(((DefaultAnnexSubclause) annexSubclause_1));
                   _builder.append(_genBehaviorAnnexTransition, "\t");
                   _builder.newLineIfNotEmpty();
+                }
+              }
+            }
+          }
+          {
+            EList<PropertyAssociation> _ownedPropertyAssociations_2 = ((ThreadImplementation)thread).getOwnedRealization().getImplemented().getOwnedPropertyAssociations();
+            for(final PropertyAssociation propertyAssociation_2 : _ownedPropertyAssociations_2) {
+              {
+                boolean _equals_4 = propertyAssociation_2.getProperty().getName().equals("Dispatch_Protocol");
+                if (_equals_4) {
+                  {
+                    boolean _equals_5 = ThreadTemplateAda.dealPrppertyExpression(propertyAssociation_2.getOwnedValues().get(0).getOwnedValue()).equals("Periodic");
+                    if (_equals_5) {
+                      _builder.append("\t");
+                      _builder.append("next_period := next_period + period;");
+                      _builder.newLine();
+                      _builder.append("\t");
+                      _builder.append("delay until next_period;");
+                      _builder.newLine();
+                      _builder.append("\t");
+                      _builder.append("end loop;");
+                      _builder.newLine();
+                    }
+                  }
                 }
               }
             }
@@ -229,5 +305,50 @@ public class ThreadTemplateAda {
       }
     }
     return _builder;
+  }
+  
+  /**
+   * 得到周期性线程的周期
+   * @param propertyAssociations 线程的所有属性列表
+   * @return 线程的周期（String类型）
+   */
+  public static String getPeriod(final List<PropertyAssociation> propertyAssociations) {
+    for (final PropertyAssociation propertyAssociation : propertyAssociations) {
+      boolean _equals = propertyAssociation.getProperty().getName().equals("Period");
+      if (_equals) {
+        return ThreadTemplateAda.dealPrppertyExpression(propertyAssociation.getOwnedValues().get(0).getOwnedValue());
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * 处理属性表达式
+   * @param propertyExpression 属性表达式
+   * @return 属性表达式的值（String类型）
+   */
+  public static String dealPrppertyExpression(final PropertyExpression propertyExpression) {
+    String str = null;
+    boolean _matched = false;
+    if (propertyExpression instanceof NamedValue) {
+      _matched=true;
+      str = ThreadTemplateAda.getPropertyValue(((NamedValue)propertyExpression));
+    }
+    if (!_matched) {
+      if (propertyExpression instanceof IntegerLiteral) {
+        _matched=true;
+        str = ThreadTemplateAda.getPropertyValue(((IntegerLiteral)propertyExpression));
+      }
+    }
+    return str;
+  }
+  
+  public static String getPropertyValue(final NamedValue namedValue) {
+    AbstractNamedValue _namedValue = namedValue.getNamedValue();
+    return ((EnumerationLiteral) _namedValue).getName().toString();
+  }
+  
+  public static String getPropertyValue(final IntegerLiteral integerLiteral) {
+    return Long.valueOf(integerLiteral.getValue()).toString();
   }
 }

@@ -183,8 +183,10 @@ class ConnectionTemplateAda {
 		«FOR feature : subcomponent.classifier.allFeatures»
 			«var connection = getConnection(connections,subcomponent.name,feature.name)»
 			«IF connection === null»
-				«println(subcomponent.name + "线程的" + feature.name + "端口没有连接交互")»
-			«ENDIF»
+				«TemplateAda.addLogMessage("线程",subcomponent.name)»
+				«TemplateAda.addLogMessage("端口",feature.name)»
+				«TemplateAda.printLogNoConnection()»
+			«ELSE»
 			«switch feature{
 				DataPort,
 				EventPort,
@@ -195,6 +197,7 @@ class ConnectionTemplateAda {
 					«feature.name»_temp : access «feature.dealClassisfy», 
 				'''
 			}»
+			«ENDIF»
 		«ENDFOR»
 		
 	'''

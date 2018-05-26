@@ -65,10 +65,7 @@ class DataTemplateAda {
 	
 	def static dealDataType(DataSubcomponent dataSubcomponent){
 		var data = dataSubcomponent.classifier
-		switch data.name{
-			case "Float":'''Float'''
-			case "Integer":'''Integer'''
-		}
+		return data.name.convertPoint
 	}
 	/*
 	 * 获得publicSection下的所有Data Implementation对象

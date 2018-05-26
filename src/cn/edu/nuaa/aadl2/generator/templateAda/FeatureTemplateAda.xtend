@@ -40,6 +40,7 @@ class FeatureTemplateAda {
 	 */
 	def static genThreadFeature(List<Feature> features, List<Connection> connections, String threadName)'''
 		«FOR Feature feature : features»
+			«TemplateAda.addLogMessage("端口",feature.name)»
 			«feature.dealThreadFeature(getConnection(connections,threadName,feature.name))»; 
 		«ENDFOR»
 	'''
@@ -64,8 +65,8 @@ class FeatureTemplateAda {
 	
 	def static dealThreadFeature(Feature feature,Connection connection)'''
 		«IF connection === null»
-			«println("存在端口没有连接")»
-		«ENDIF»
+			«TemplateAda.printLogNoConnection»
+		«ELSE»
 		«switch feature{
 			DataPort,
 			EventPort,
@@ -76,6 +77,7 @@ class FeatureTemplateAda {
 				«feature.name»_temp : access «feature.dealClassisfy»
 			'''
 		}»
+		«ENDIF»
 	'''
 	/*
 	 * 将线程的out和in out端口生成为进程中的变量

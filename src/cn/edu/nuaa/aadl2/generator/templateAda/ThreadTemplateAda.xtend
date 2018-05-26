@@ -14,6 +14,11 @@ import java.util.List
 import org.osate.aadl2.AnnexSubclause
 import org.osate.aadl2.DefaultAnnexSubclause
 import org.osate.aadl2.Connection
+import org.osate.aadl2.PropertyAssociation
+import org.osate.aadl2.PropertyExpression
+import org.osate.aadl2.NamedValue
+import org.osate.aadl2.IntegerLiteral
+import org.osate.aadl2.EnumerationLiteral
 
 class ThreadTemplateAda {
 	/*
@@ -23,6 +28,7 @@ class ThreadTemplateAda {
 	 */
 	def static genProcessThreadSubcomponent(List<ThreadSubcomponent> threadSubcomponents, List<Connection> connections)'''
 		«FOR threadSubcomponent : threadSubcomponents»
+			«TemplateAda.addLogMessage("线程",threadSubcomponent.name)»
 			«threadSubcomponent.head(connections)»
 			«threadSubcomponent.template»
 		«ENDFOR»
@@ -61,7 +67,23 @@ class ThreadTemplateAda {
 							current_state : States;
 						«ENDFOR»
 					«ENDIF»
+					«FOR propertyAssociation : thread.ownedRealization.implemented.ownedPropertyAssociations»
+						«IF propertyAssociation.property.name.equals("Dispatch_Protocol")»
+							«IF propertyAssociation.ownedValues.get(0).ownedValue.dealPrppertyExpression.equals("Periodic")»
+							«var period = getPeriod(thread.ownedRealization.implemented.ownedPropertyAssociations)»
+							period : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(«period»);
+							next_period : Ada.Real_Time.Time := Ada.Real_Time.Clock + period;
+							«ENDIF»
+						«ENDIF»
+					«ENDFOR»
 				begin
+					«FOR propertyAssociation : thread.ownedRealization.implemented.ownedPropertyAssociations»
+						«IF propertyAssociation.property.name.equals("Dispatch_Protocol")»
+							«IF propertyAssociation.ownedValues.get(0).ownedValue.dealPrppertyExpression.equals("Periodic")»
+							loop
+							«ENDIF»
+						«ENDIF»
+					«ENDFOR»
 					«FOR SubprogramCallSequence subprogramCallSequence : thread.ownedSubprogramCallSequences»
 						«FOR SubprogramCall subprogramCall : subprogramCallSequence.ownedSubprogramCalls»
 							«TemplateAda.packageName»_«Tools.getCalledSubprogramName(subprogramCall.calledSubprogram.toString()).convertPoint»;
@@ -73,6 +95,15 @@ class ThreadTemplateAda {
 							«genBehaviorAnnexTransition(annexSubclause as DefaultAnnexSubclause)»
 						«ENDFOR»
 					«ENDIF»
+					«FOR propertyAssociation : thread.ownedRealization.implemented.ownedPropertyAssociations»
+						«IF propertyAssociation.property.name.equals("Dispatch_Protocol")»
+							«IF propertyAssociation.ownedValues.get(0).ownedValue.dealPrppertyExpression.equals("Periodic")»
+							next_period := next_period + period;
+							delay until next_period;
+							end loop;
+							«ENDIF»
+						«ENDIF»
+					«ENDFOR»
 				end «thread.name.convert»;
 				
 			'''
@@ -99,4 +130,38 @@ class ThreadTemplateAda {
 	 		«threadSubcomponent.name»_task : access_«thread.name.convert»;
 	 	«ENDFOR»
 	 '''
+	 /*
+	  * 得到周期性线程的周期
+	  * @param propertyAssociations 线程的所有属性列表
+	  * @return 线程的周期（String类型）
+	  */
+	 def static getPeriod(List<PropertyAssociation> propertyAssociations){
+	 	for(propertyAssociation : propertyAssociations){
+	 		if(propertyAssociation.property.name.equals("Period")){
+	 			return propertyAssociation.ownedValues.get(0).ownedValue.dealPrppertyExpression
+	 		}
+	 	}
+	 	return null;
+	 }
+	 /*
+	  * 处理属性表达式
+	  * @param propertyExpression 属性表达式
+	  * @return 属性表达式的值（String类型）
+	  */
+	 def static dealPrppertyExpression(PropertyExpression propertyExpression){
+	 	var String str = null;
+	 	switch (propertyExpression){
+	 		NamedValue:
+	 			str = getPropertyValue(propertyExpression)
+	 		IntegerLiteral:
+	 			str = getPropertyValue(propertyExpression)
+	 	}
+	 	return str;
+	 }
+	 def static getPropertyValue(NamedValue namedValue){
+	 	return (namedValue.namedValue as EnumerationLiteral).name.toString;
+	 }
+	 def static getPropertyValue(IntegerLiteral integerLiteral){
+	 	return integerLiteral.value.toString;
+	 }
 }

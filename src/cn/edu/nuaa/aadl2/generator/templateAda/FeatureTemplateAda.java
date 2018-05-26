@@ -1,10 +1,10 @@
 package cn.edu.nuaa.aadl2.generator.templateAda;
 
+import cn.edu.nuaa.aadl2.generator.templateAda.TemplateAda;
 import cn.edu.nuaa.aadl2.generator.utils.StringUtils;
 import cn.edu.nuaa.aadl2.generator.utils.Tools;
 import java.util.List;
 import org.eclipse.xtend2.lib.StringConcatenation;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.DataAccess;
@@ -55,6 +55,8 @@ public class FeatureTemplateAda {
     StringConcatenation _builder = new StringConcatenation();
     {
       for(final Feature feature : features) {
+        TemplateAda.addLogMessage("端口", feature.getName());
+        _builder.newLineIfNotEmpty();
         CharSequence _dealThreadFeature = FeatureTemplateAda.dealThreadFeature(feature, FeatureTemplateAda.getConnection(connections, threadName, feature.getName()));
         _builder.append(_dealThreadFeature);
         _builder.append("; ");
@@ -89,52 +91,52 @@ public class FeatureTemplateAda {
     StringConcatenation _builder = new StringConcatenation();
     {
       if ((connection == null)) {
-        String _println = InputOutput.<String>println("存在端口没有连接");
-        _builder.append(_println);
+        TemplateAda.printLogNoConnection();
+        _builder.newLineIfNotEmpty();
+      } else {
+        CharSequence _switchResult = null;
+        boolean _matched = false;
+        if (feature instanceof DataPort) {
+          _matched=true;
+        }
+        if (!_matched) {
+          if (feature instanceof EventPort) {
+            _matched=true;
+          }
+        }
+        if (!_matched) {
+          if (feature instanceof EventDataPort) {
+            _matched=true;
+          }
+        }
+        if (_matched) {
+          StringConcatenation _builder_1 = new StringConcatenation();
+          String _name = ((Port)feature).getName();
+          _builder_1.append(_name);
+          _builder_1.append("_temp : access ");
+          String _name_1 = connection.getName();
+          _builder_1.append(_name_1);
+          _builder_1.append(".base");
+          _builder_1.newLineIfNotEmpty();
+          _switchResult = _builder_1;
+        }
+        if (!_matched) {
+          if (feature instanceof DataAccess) {
+            _matched=true;
+            StringConcatenation _builder_2 = new StringConcatenation();
+            String _name_2 = ((DataAccess)feature).getName();
+            _builder_2.append(_name_2);
+            _builder_2.append("_temp : access ");
+            CharSequence _dealClassisfy = FeatureTemplateAda.dealClassisfy(feature);
+            _builder_2.append(_dealClassisfy);
+            _builder_2.newLineIfNotEmpty();
+            _switchResult = _builder_2;
+          }
+        }
+        _builder.append(_switchResult);
         _builder.newLineIfNotEmpty();
       }
     }
-    CharSequence _switchResult = null;
-    boolean _matched = false;
-    if (feature instanceof DataPort) {
-      _matched=true;
-    }
-    if (!_matched) {
-      if (feature instanceof EventPort) {
-        _matched=true;
-      }
-    }
-    if (!_matched) {
-      if (feature instanceof EventDataPort) {
-        _matched=true;
-      }
-    }
-    if (_matched) {
-      StringConcatenation _builder_1 = new StringConcatenation();
-      String _name = ((Port)feature).getName();
-      _builder_1.append(_name);
-      _builder_1.append("_temp : access ");
-      String _name_1 = connection.getName();
-      _builder_1.append(_name_1);
-      _builder_1.append(".base");
-      _builder_1.newLineIfNotEmpty();
-      _switchResult = _builder_1;
-    }
-    if (!_matched) {
-      if (feature instanceof DataAccess) {
-        _matched=true;
-        StringConcatenation _builder_2 = new StringConcatenation();
-        String _name_2 = ((DataAccess)feature).getName();
-        _builder_2.append(_name_2);
-        _builder_2.append("_temp : access ");
-        CharSequence _dealClassisfy = FeatureTemplateAda.dealClassisfy(feature);
-        _builder_2.append(_dealClassisfy);
-        _builder_2.newLineIfNotEmpty();
-        _switchResult = _builder_2;
-      }
-    }
-    _builder.append(_switchResult);
-    _builder.newLineIfNotEmpty();
     return _builder;
   }
   

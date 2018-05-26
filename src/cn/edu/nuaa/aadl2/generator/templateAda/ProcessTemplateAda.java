@@ -35,6 +35,7 @@ public class ProcessTemplateAda {
    * @param systemName 系统名称
    */
   public static void genSystemProcessSubcomponent(final String parentFolder, final ProcessSubcomponent processSubcomponent, final String systemName) {
+    TemplateAda.addLogMessage("进程", processSubcomponent.getName());
     String _convert = StringUtils.convert(processSubcomponent.getName());
     String _plus = ((parentFolder + "/process_") + _convert);
     ProcessTemplateAda.currentFolder = _plus;

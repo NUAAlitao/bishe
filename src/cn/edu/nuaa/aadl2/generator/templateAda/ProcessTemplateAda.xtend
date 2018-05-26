@@ -32,6 +32,7 @@ class ProcessTemplateAda {
 	 * @param systemName 系统名称
 	 */
 	def static genSystemProcessSubcomponent(String parentFolder, ProcessSubcomponent processSubcomponent, String systemName){
+			TemplateAda.addLogMessage("进程",processSubcomponent.name)
 			currentFolder = parentFolder+"/process_"+processSubcomponent.name.convert
 			Tools.folder(currentFolder)
 			Tools.createFile(currentFolder, 

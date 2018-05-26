@@ -1,11 +1,11 @@
 package cn.edu.nuaa.aadl2.generator.templateAda;
 
 import cn.edu.nuaa.aadl2.generator.templateAda.FeatureTemplateAda;
+import cn.edu.nuaa.aadl2.generator.templateAda.TemplateAda;
 import cn.edu.nuaa.aadl2.generator.utils.StringUtils;
 import java.util.List;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtend2.lib.StringConcatenation;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.osate.aadl2.AccessConnection;
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.Connection;
@@ -423,58 +423,57 @@ public class ConnectionTemplateAda {
         _builder.newLineIfNotEmpty();
         {
           if ((connection == null)) {
-            String _name = subcomponent.getName();
-            String _plus = (_name + "线程的");
-            String _name_1 = feature.getName();
-            String _plus_1 = (_plus + _name_1);
-            String _plus_2 = (_plus_1 + "端口没有连接交互");
-            String _println = InputOutput.<String>println(_plus_2);
-            _builder.append(_println);
+            TemplateAda.addLogMessage("线程", subcomponent.getName());
+            _builder.newLineIfNotEmpty();
+            TemplateAda.addLogMessage("端口", feature.getName());
+            _builder.newLineIfNotEmpty();
+            TemplateAda.printLogNoConnection();
+            _builder.newLineIfNotEmpty();
+          } else {
+            CharSequence _switchResult = null;
+            boolean _matched = false;
+            if (feature instanceof DataPort) {
+              _matched=true;
+            }
+            if (!_matched) {
+              if (feature instanceof EventPort) {
+                _matched=true;
+              }
+            }
+            if (!_matched) {
+              if (feature instanceof EventDataPort) {
+                _matched=true;
+              }
+            }
+            if (_matched) {
+              StringConcatenation _builder_1 = new StringConcatenation();
+              String _name = ((Port)feature).getName();
+              _builder_1.append(_name);
+              _builder_1.append("_temp=>");
+              String _name_1 = connection.getName();
+              _builder_1.append(_name_1);
+              _builder_1.append("_object\'Access, ");
+              _builder_1.newLineIfNotEmpty();
+              _switchResult = _builder_1;
+            }
+            if (!_matched) {
+              if (feature instanceof DataAccess) {
+                _matched=true;
+                StringConcatenation _builder_2 = new StringConcatenation();
+                String _name_2 = ((DataAccess)feature).getName();
+                _builder_2.append(_name_2);
+                _builder_2.append("_temp : access ");
+                CharSequence _dealClassisfy = FeatureTemplateAda.dealClassisfy(feature);
+                _builder_2.append(_dealClassisfy);
+                _builder_2.append(", ");
+                _builder_2.newLineIfNotEmpty();
+                _switchResult = _builder_2;
+              }
+            }
+            _builder.append(_switchResult);
             _builder.newLineIfNotEmpty();
           }
         }
-        CharSequence _switchResult = null;
-        boolean _matched = false;
-        if (feature instanceof DataPort) {
-          _matched=true;
-        }
-        if (!_matched) {
-          if (feature instanceof EventPort) {
-            _matched=true;
-          }
-        }
-        if (!_matched) {
-          if (feature instanceof EventDataPort) {
-            _matched=true;
-          }
-        }
-        if (_matched) {
-          StringConcatenation _builder_1 = new StringConcatenation();
-          String _name_2 = ((Port)feature).getName();
-          _builder_1.append(_name_2);
-          _builder_1.append("_temp=>");
-          String _name_3 = connection.getName();
-          _builder_1.append(_name_3);
-          _builder_1.append("_object\'Access, ");
-          _builder_1.newLineIfNotEmpty();
-          _switchResult = _builder_1;
-        }
-        if (!_matched) {
-          if (feature instanceof DataAccess) {
-            _matched=true;
-            StringConcatenation _builder_2 = new StringConcatenation();
-            String _name_4 = ((DataAccess)feature).getName();
-            _builder_2.append(_name_4);
-            _builder_2.append("_temp : access ");
-            CharSequence _dealClassisfy = FeatureTemplateAda.dealClassisfy(feature);
-            _builder_2.append(_dealClassisfy);
-            _builder_2.append(", ");
-            _builder_2.newLineIfNotEmpty();
-            _switchResult = _builder_2;
-          }
-        }
-        _builder.append(_switchResult);
-        _builder.newLineIfNotEmpty();
       }
     }
     _builder.newLine();

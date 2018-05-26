@@ -34,19 +34,36 @@ import org.osate.ba.aadlba.BehaviorTime
 class AnnexSubclauseTemplateAda {
 
 	def static genBehaviorAnnexVarible(DefaultAnnexSubclause defaultAnnexSubclause){
-		dealBehaviorAnnexVariable(defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex)
+		if((defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex)==null){
+			TemplateAda.printLogAnnexError
+		}else{
+			dealBehaviorAnnexVariable(defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex)
+		}
 	}
 	
 	def static genBehaviorAnnexState(DefaultAnnexSubclause defaultAnnexSubclause){
-		dealBehaviorAnnexState(defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex).toString.clearspace
+		if((defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex)==null){
+			TemplateAda.printLogAnnexError
+		}else{
+			dealBehaviorAnnexState(defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex).toString.clearspace
+		}
 	}
 	
 	def static genBehaviorAnnexTransition(DefaultAnnexSubclause defaultAnnexSubclause){
-		dealBehaviorAnnexTransition(defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex)
+		if((defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex)==null){
+			TemplateAda.printLogAnnexError
+		}else{
+			dealBehaviorAnnexTransition(defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex)
+		}
 	}
 	
 	def static initBehaviorAnnexState(DefaultAnnexSubclause defaultAnnexSubclause){
-		dealInitState(defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex).toString.clearspace
+		if((defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex)==null){
+			TemplateAda.printLogAnnexError
+			return ""
+		}else{
+			dealInitState(defaultAnnexSubclause.parsedAnnexSubclause as BehaviorAnnex).toString.clearspace
+		}
 	}
 	
 	def static dealInitState(BehaviorAnnex behaviorAnnex)'''

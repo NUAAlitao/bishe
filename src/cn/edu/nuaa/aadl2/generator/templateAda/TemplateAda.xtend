@@ -1,5 +1,9 @@
 package cn.edu.nuaa.aadl2.generator.templateAda
 
+import java.util.Map
+import java.util.HashMap
+import java.util.LinkedHashMap
+
 class TemplateAda {
 	public static String systemfolder=null;
 	public static String processfolder=null;
@@ -11,7 +15,6 @@ class TemplateAda {
 	public static String meta_systemheadfile=null;
 	public static String meta_systemfolder=null;
 	
-	public static boolean isMeta=true;
 	
 	public static String base_protect_ads='''
 		generic
@@ -54,4 +57,29 @@ class TemplateAda {
 		   end base;
 		end base_protect;
 	'''
+	
+	private static Map<String,String> log = new LinkedHashMap<String,String>();
+	def static void addLogMessage(String name, String message){
+		log.put(name,message);
+	}
+	def static clearLogMessage(){
+		log.clear();
+	}
+	def static void printLogNoConnection(){
+		println("---------------------------------------------------");
+		println("系统："+log.get("系统"))
+		println("进程："+log.get("进程"))
+		println("线程："+log.get("线程"))
+		println("端口："+log.get("端口"))
+		println("错误信息：端口没有连接")
+		println("---------------------------------------------------");
+	}
+	def static void printLogAnnexError(){
+		println("---------------------------------------------------");
+		println("系统："+log.get("系统"))
+		println("进程："+log.get("进程"))
+		println("线程："+log.get("线程"))
+		println("错误信息：行为附件语法错误")
+		println("---------------------------------------------------");
+	}
 }

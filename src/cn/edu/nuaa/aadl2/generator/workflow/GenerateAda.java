@@ -62,6 +62,8 @@ public class GenerateAda {
    * @param systemName 此系统名称
    */
   public static void generateSystem(final String parentFolderPath, final SystemImplementation system, final String systemName) {
+    TemplateAda.clearLogMessage();
+    TemplateAda.addLogMessage("系统", systemName);
     String currentFolder = "system_";
     if ((systemName == null)) {
       String _currentFolder = currentFolder;

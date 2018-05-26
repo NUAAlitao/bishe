@@ -1,6 +1,8 @@
 package cn.edu.nuaa.aadl2.generator.templateAda;
 
+import cn.edu.nuaa.aadl2.generator.templateAda.TemplateAda;
 import cn.edu.nuaa.aadl2.generator.utils.StringUtils;
+import com.google.common.base.Objects;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,23 +52,56 @@ import org.osate.ba.utils.AadlBaVisitors;
 @SuppressWarnings("all")
 public class AnnexSubclauseTemplateAda {
   public static CharSequence genBehaviorAnnexVarible(final DefaultAnnexSubclause defaultAnnexSubclause) {
+    CharSequence _xifexpression = null;
     AnnexSubclause _parsedAnnexSubclause = defaultAnnexSubclause.getParsedAnnexSubclause();
-    return AnnexSubclauseTemplateAda.dealBehaviorAnnexVariable(((BehaviorAnnex) _parsedAnnexSubclause));
+    boolean _equals = Objects.equal(((BehaviorAnnex) _parsedAnnexSubclause), null);
+    if (_equals) {
+      TemplateAda.printLogAnnexError();
+    } else {
+      AnnexSubclause _parsedAnnexSubclause_1 = defaultAnnexSubclause.getParsedAnnexSubclause();
+      _xifexpression = AnnexSubclauseTemplateAda.dealBehaviorAnnexVariable(((BehaviorAnnex) _parsedAnnexSubclause_1));
+    }
+    return _xifexpression;
   }
   
   public static String genBehaviorAnnexState(final DefaultAnnexSubclause defaultAnnexSubclause) {
+    String _xifexpression = null;
     AnnexSubclause _parsedAnnexSubclause = defaultAnnexSubclause.getParsedAnnexSubclause();
-    return StringUtils.clearspace(AnnexSubclauseTemplateAda.dealBehaviorAnnexState(((BehaviorAnnex) _parsedAnnexSubclause)).toString());
+    boolean _equals = Objects.equal(((BehaviorAnnex) _parsedAnnexSubclause), null);
+    if (_equals) {
+      TemplateAda.printLogAnnexError();
+    } else {
+      AnnexSubclause _parsedAnnexSubclause_1 = defaultAnnexSubclause.getParsedAnnexSubclause();
+      _xifexpression = StringUtils.clearspace(AnnexSubclauseTemplateAda.dealBehaviorAnnexState(((BehaviorAnnex) _parsedAnnexSubclause_1)).toString());
+    }
+    return _xifexpression;
   }
   
   public static CharSequence genBehaviorAnnexTransition(final DefaultAnnexSubclause defaultAnnexSubclause) {
+    CharSequence _xifexpression = null;
     AnnexSubclause _parsedAnnexSubclause = defaultAnnexSubclause.getParsedAnnexSubclause();
-    return AnnexSubclauseTemplateAda.dealBehaviorAnnexTransition(((BehaviorAnnex) _parsedAnnexSubclause));
+    boolean _equals = Objects.equal(((BehaviorAnnex) _parsedAnnexSubclause), null);
+    if (_equals) {
+      TemplateAda.printLogAnnexError();
+    } else {
+      AnnexSubclause _parsedAnnexSubclause_1 = defaultAnnexSubclause.getParsedAnnexSubclause();
+      _xifexpression = AnnexSubclauseTemplateAda.dealBehaviorAnnexTransition(((BehaviorAnnex) _parsedAnnexSubclause_1));
+    }
+    return _xifexpression;
   }
   
   public static String initBehaviorAnnexState(final DefaultAnnexSubclause defaultAnnexSubclause) {
+    String _xifexpression = null;
     AnnexSubclause _parsedAnnexSubclause = defaultAnnexSubclause.getParsedAnnexSubclause();
-    return StringUtils.clearspace(AnnexSubclauseTemplateAda.dealInitState(((BehaviorAnnex) _parsedAnnexSubclause)).toString());
+    boolean _equals = Objects.equal(((BehaviorAnnex) _parsedAnnexSubclause), null);
+    if (_equals) {
+      TemplateAda.printLogAnnexError();
+      return "";
+    } else {
+      AnnexSubclause _parsedAnnexSubclause_1 = defaultAnnexSubclause.getParsedAnnexSubclause();
+      _xifexpression = StringUtils.clearspace(AnnexSubclauseTemplateAda.dealInitState(((BehaviorAnnex) _parsedAnnexSubclause_1)).toString());
+    }
+    return _xifexpression;
   }
   
   public static CharSequence dealInitState(final BehaviorAnnex behaviorAnnex) {

@@ -97,29 +97,9 @@ public class DataTemplateAda {
     return _builder;
   }
   
-  public static CharSequence dealDataType(final DataSubcomponent dataSubcomponent) {
-    CharSequence _xblockexpression = null;
-    {
-      ComponentClassifier data = dataSubcomponent.getClassifier();
-      CharSequence _switchResult = null;
-      String _name = data.getName();
-      if (_name != null) {
-        switch (_name) {
-          case "Float":
-            StringConcatenation _builder = new StringConcatenation();
-            _builder.append("Float");
-            _switchResult = _builder;
-            break;
-          case "Integer":
-            StringConcatenation _builder_1 = new StringConcatenation();
-            _builder_1.append("Integer");
-            _switchResult = _builder_1;
-            break;
-        }
-      }
-      _xblockexpression = _switchResult;
-    }
-    return _xblockexpression;
+  public static String dealDataType(final DataSubcomponent dataSubcomponent) {
+    ComponentClassifier data = dataSubcomponent.getClassifier();
+    return StringUtils.convertPoint(data.getName());
   }
   
   /**

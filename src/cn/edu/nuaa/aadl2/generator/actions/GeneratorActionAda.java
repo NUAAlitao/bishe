@@ -20,6 +20,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
@@ -111,59 +112,15 @@ public class GeneratorActionAda implements IObjectActionDelegate {
 	 * @see IActionDelegate#run(IAction)
 	 */
 	public void run(IAction action) {
-		GeneratorActionC.getConsole().clearConsole();
-
-			//Generate.generate(_si.getSystemImplementation());
-			preCprjCreate();
-
+		GeneratorActionAda.getConsole().clearConsole();
+		preCprjCreate();
+		
+		MessageDialog.openInformation(
+				shell,
+				"从AADL模型生成Ada代码",
+				"生成完毕");
 	}
 	
-	/** */
-//	public void run(IAction action) {
-//		GeneratorAction.getConsole().clearConsole();
-//		if (_si != null) {
-//			SystemImplementation si = _si.getSystemImplementation();
-////			final Display d = PlatformUI.getWorkbench().getDisplay();
-////			d.syncExec(new Runnable(){
-////
-////				public void run() {
-////					IWorkbenchWindow window;
-////					Shell sh;
-////					
-////					window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-////					sh = window.getShell();
-////					
-////					InputDialog fd = new InputDialog(sh, "Error State name", "Please specify the name of the error state name\n(with the optional error type separated by a space)", "failed", null);
-////					if (fd.open() == Window.OK)
-////					{
-////						projectname = fd.getValue();
-////					}
-////					else
-////					{
-////						projectname = null;
-////					}
-////
-////						
-////			}});
-////			printToConsole(projectname);
-//			try{
-//				cproject=(IProject) execute(null);
-//			} catch (ExecutionException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			//Generate.generate(_si.getSystemImplementation());
-//			preCprjCreate();
-//			postCprjCreate(cproject);
-//			
-//		} else {
-//			// printToConsole("model is null");
-//
-//		}
-//		_si = null;
-//
-//	}
-
 	/**
 	 * @see IActionDelegate#selectionChanged(IAction, ISelection)
 	 * 鼠标选择监听
