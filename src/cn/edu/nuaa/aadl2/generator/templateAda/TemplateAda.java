@@ -1,10 +1,10 @@
 package cn.edu.nuaa.aadl2.generator.templateAda;
 
+import cn.edu.nuaa.aadl2.generator.utils.ShowMessage;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.Functions.Function0;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 
 @SuppressWarnings("all")
 public class TemplateAda {
@@ -144,35 +144,52 @@ public class TemplateAda {
   }
   
   public static void printLogNoConnection() {
-    InputOutput.<String>println("---------------------------------------------------");
+    StringConcatenation _builder = new StringConcatenation();
+    _builder.append("---------------------------------------------------");
+    _builder.newLine();
+    _builder.append("系统：");
     String _get = TemplateAda.log.get("系统");
-    String _plus = ("系统：" + _get);
-    InputOutput.<String>println(_plus);
+    _builder.append(_get);
+    _builder.newLineIfNotEmpty();
+    _builder.append("进程：");
     String _get_1 = TemplateAda.log.get("进程");
-    String _plus_1 = ("进程：" + _get_1);
-    InputOutput.<String>println(_plus_1);
+    _builder.append(_get_1);
+    _builder.newLineIfNotEmpty();
+    _builder.append("线程：");
     String _get_2 = TemplateAda.log.get("线程");
-    String _plus_2 = ("线程：" + _get_2);
-    InputOutput.<String>println(_plus_2);
+    _builder.append(_get_2);
+    _builder.newLineIfNotEmpty();
+    _builder.append("端口：");
     String _get_3 = TemplateAda.log.get("端口");
-    String _plus_3 = ("端口：" + _get_3);
-    InputOutput.<String>println(_plus_3);
-    InputOutput.<String>println("错误信息：端口没有连接");
-    InputOutput.<String>println("---------------------------------------------------");
+    _builder.append(_get_3);
+    _builder.newLineIfNotEmpty();
+    _builder.append("错误信息：端口没有连接");
+    _builder.newLine();
+    _builder.append("---------------------------------------------------");
+    String message = _builder.toString();
+    ShowMessage.printMessage(message);
   }
   
   public static void printLogAnnexError() {
-    InputOutput.<String>println("---------------------------------------------------");
+    StringConcatenation _builder = new StringConcatenation();
+    _builder.append("---------------------------------------------------");
+    _builder.newLine();
+    _builder.append("系统：");
     String _get = TemplateAda.log.get("系统");
-    String _plus = ("系统：" + _get);
-    InputOutput.<String>println(_plus);
+    _builder.append(_get);
+    _builder.newLineIfNotEmpty();
+    _builder.append("进程：");
     String _get_1 = TemplateAda.log.get("进程");
-    String _plus_1 = ("进程：" + _get_1);
-    InputOutput.<String>println(_plus_1);
+    _builder.append(_get_1);
+    _builder.newLineIfNotEmpty();
+    _builder.append("线程：");
     String _get_2 = TemplateAda.log.get("线程");
-    String _plus_2 = ("线程：" + _get_2);
-    InputOutput.<String>println(_plus_2);
-    InputOutput.<String>println("错误信息：行为附件语法错误");
-    InputOutput.<String>println("---------------------------------------------------");
+    _builder.append(_get_2);
+    _builder.newLineIfNotEmpty();
+    _builder.append("错误信息：行为附件语法错误");
+    _builder.newLine();
+    _builder.append("---------------------------------------------------");
+    String message = _builder.toString();
+    ShowMessage.printMessage(message);
   }
 }

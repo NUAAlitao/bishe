@@ -1,8 +1,13 @@
 package cn.edu.nuaa.aadl2.generator.templateAda
 
 import java.util.Map
-import java.util.HashMap
 import java.util.LinkedHashMap
+import org.eclipse.ui.console.MessageConsole
+import org.eclipse.ui.console.MessageConsoleStream
+import org.eclipse.ui.console.IConsoleManager
+import org.eclipse.ui.console.ConsolePlugin
+import org.eclipse.ui.console.IConsole
+import cn.edu.nuaa.aadl2.generator.utils.ShowMessage
 
 class TemplateAda {
 	public static String systemfolder=null;
@@ -66,20 +71,24 @@ class TemplateAda {
 		log.clear();
 	}
 	def static void printLogNoConnection(){
-		println("---------------------------------------------------");
-		println("系统："+log.get("系统"))
-		println("进程："+log.get("进程"))
-		println("线程："+log.get("线程"))
-		println("端口："+log.get("端口"))
-		println("错误信息：端口没有连接")
-		println("---------------------------------------------------");
+		var message = '''
+		---------------------------------------------------
+		系统：«log.get("系统")»
+		进程：«log.get("进程")»
+		线程：«log.get("线程")»
+		端口：«log.get("端口")»
+		错误信息：端口没有连接
+		---------------------------------------------------'''
+		ShowMessage.printMessage(message)
 	}
 	def static void printLogAnnexError(){
-		println("---------------------------------------------------");
-		println("系统："+log.get("系统"))
-		println("进程："+log.get("进程"))
-		println("线程："+log.get("线程"))
-		println("错误信息：行为附件语法错误")
-		println("---------------------------------------------------");
+		var message = '''
+		---------------------------------------------------
+		系统：«log.get("系统")»
+		进程：«log.get("进程")»
+		线程：«log.get("线程")»
+		错误信息：行为附件语法错误
+		---------------------------------------------------'''
+		ShowMessage.printMessage(message)
 	}
 }
